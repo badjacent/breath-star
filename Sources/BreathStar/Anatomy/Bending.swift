@@ -49,8 +49,9 @@ public struct SpineShape: Sendable, Equatable {
     /// The lumbar segment's share of a whole-trunk motion, by range of motion: summed per-level
     /// ranges (White & Panjabi's representative values): flexion–extension lumbar ~72° vs thoracic
     /// ~70° (checked 2026-11-11 against a reproduction of their thoracic table, T1–T12 ≈ 76°, and
-    /// L1–L2 = 12°: share ≈ 0.49); lateral bending ~29° vs ~66° and axial rotation ~10° vs ~70°
-    /// (RECALLED, not yet checked). (Until 2026-11-10 the split was by segment length, 18 : 28 cm, which put too little of a
+    /// L1–L2 = 12°: share ≈ 0.49); lateral bending ~29° vs ~66° (secondary reproductions: ~6° per
+    /// side per segment, L5–S1 3°: share ≈ 0.27–0.3) and axial rotation ~10° vs ~70° (lumbar 1–2° per
+    /// segment, upper thoracic 8–9°: share ≈ 0.1), all checked 2026-11-11 (LITERATURE pass 15). (Until 2026-11-10 the split was by segment length, 18 : 28 cm, which put too little of a
     /// bend or an arch in the lower back and too much of a twist there.)
     public static let lumbarShare = (flexion: 0.5, sideBend: 0.3, rotation: 0.12)
 

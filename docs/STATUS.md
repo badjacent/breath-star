@@ -32,8 +32,7 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
 - **The upper rib muscles face down.** The postural share (0.4, fitted) treats face down as "not
   upright"; nothing measures their drive face down.
 - **Unsourced sizes:** the tone factors (held ×5, light ×1.5, softened ×0.7), the belly wall's
-  bulge peak with the knees bent, the bend's dome coupling (0.5), the wall's bend gain, the side-bend and rotation
-  shares of the spine (the flexion share is checked), the slow-state hypotheses' sizes (respiratory
+  bulge peak with the knees bent, the bend's dome coupling (0.5), the wall's bend gain, the slow-state hypotheses' sizes (respiratory
   thixotropy is real but measured as volume after-effects lasting a few breaths, not stiffness
   over minutes: LITERATURE pass 15), and every angle in a lesson encoding.
 - **Not modelled:** standing (taken as sitting), the pelvic floor, a posterior abdominal wall, the

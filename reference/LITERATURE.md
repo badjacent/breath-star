@@ -995,8 +995,11 @@ Three numbers in the code were marked "recalled, not read".
 - **White AA, Panjabi MM** (1978 review in *Spine*; *Clinical Biomechanics of the Spine*, 1990).
   Thoracic flexion–extension per level, from a secondary reproduction: T1–T5 4°, T6 5°, T7–T9 6°,
   T10 9°, T11–T12 12° (sum ≈ 76°); lumbar L1–L2 12° (a 2015 PMC table, PMC4360610). **Confirms** the
-  flexion share (≈ 0.49 vs 0.5 used). Lateral bending and axial rotation per level not found: those
-  two shares stay recalled.
+  flexion share (≈ 0.49 vs 0.5 used). Lateral bending and axial rotation, from secondary
+  reproductions of their table (a Frontiers in Pediatrics 2023 review; a chiropractic biomechanics
+  handout): ~6° per side per thoracic and lumbar segment, 3° at L5–S1 (lumbar share ≈ 0.27–0.3 vs
+  0.3 used); axial rotation 1–2° per lumbar segment, 8–9° upper thoracic (share ≈ 0.1 vs 0.12
+  used). **Confirmed** in size; the original table was not read.
 - **Homma I, Hagbarth KE (2000).** Thixotropy of rib cage respiratory muscles in normal subjects.
   *J Appl Physiol* 89(5):1753–1758. Abstract: 12 healthy, inductance plethysmography; after
   conditioning manoeuvres the end-expiratory ribcage position shifts (significant for two of three
