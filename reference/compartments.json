@@ -1,0 +1,420 @@
+{
+  "_note": "Only values read from a paper's own tables or printed figure labels (read_level says which). See LITERATURE.md for sources.",
+  "mendes2020": {
+    "citation": "Mendes LPS et al. Braz J Phys Ther 2020;24:240-248. doi:10.1016/j.bjpt.2019.02.007. Table 2.",
+    "method": "OEP, quiet breathing, healthy adults",
+    "units": "percent of chest-wall tidal volume, mean and SD; Vcw in litres",
+    "groups": {
+      "men": {
+        "n": 31,
+        "age_mean": 36,
+        "seated": {
+          "rcp": [
+            37.41,
+            8.44
+          ],
+          "rca": [
+            21.93,
+            5.81
+          ],
+          "ab": [
+            40.83,
+            10.52
+          ],
+          "vcw_l": [
+            0.84,
+            0.45
+          ],
+          "rr_bpm": 15.66
+        },
+        "incline45": {
+          "rcp": [
+            30.97,
+            10.63
+          ],
+          "rca": [
+            14.25,
+            3.92
+          ],
+          "ab": [
+            55.4,
+            13.26
+          ],
+          "vcw_l": [
+            0.59,
+            0.26
+          ],
+          "rr_bpm": 15.69
+        },
+        "supine": {
+          "rcp": [
+            19.5,
+            9.85
+          ],
+          "rca": [
+            11.5,
+            4.36
+          ],
+          "ab": [
+            69.77,
+            13.36
+          ],
+          "vcw_l": [
+            0.58,
+            0.28
+          ],
+          "rr_bpm": 16.15
+        }
+      },
+      "women": {
+        "n": 52,
+        "age_mean": 47,
+        "seated": {
+          "rcp": [
+            43.02,
+            11.38
+          ],
+          "rca": [
+            19.51,
+            5.35
+          ],
+          "ab": [
+            37.42,
+            12.23
+          ],
+          "vcw_l": [
+            0.53,
+            0.23
+          ],
+          "rr_bpm": 16.72
+        },
+        "incline45": {
+          "rcp": [
+            39.74,
+            14.31
+          ],
+          "rca": [
+            13.13,
+            4.95
+          ],
+          "ab": [
+            46.49,
+            15.89
+          ],
+          "vcw_l": [
+            0.44,
+            0.16
+          ],
+          "rr_bpm": 16.86
+        },
+        "supine": {
+          "rcp": [
+            23.01,
+            10.51
+          ],
+          "rca": [
+            11.9,
+            4.63
+          ],
+          "ab": [
+            65.41,
+            13.26
+          ],
+          "vcw_l": [
+            0.41,
+            0.16
+          ],
+          "rr_bpm": 17.35
+        }
+      }
+    }
+  },
+  "takashima2017": {
+    "citation": "Takashima S et al. J Phys Ther Sci 2017;29:29-34. doi:10.1589/jpts.29.29. Table 3.",
+    "method": "OEP, quiet breathing, 15 healthy men; lateral = right side down, on the floor",
+    "units": "mean tidal marker displacement in mm, mean and SD",
+    "tidal_volume_l": {
+      "supine": [
+        0.52,
+        0.15
+      ],
+      "right_lateral": [
+        0.51,
+        0.12
+      ],
+      "sitting": [
+        0.56,
+        0.2
+      ]
+    },
+    "displacement_mm": {
+      "anterior_upper_ribcage": {
+        "craniocaudal": {
+          "supine": [
+            1.14,
+            0.68
+          ],
+          "right_lateral": [
+            0.68,
+            0.34
+          ],
+          "sitting": [
+            1.94,
+            1.07
+          ]
+        },
+        "mediolateral": {
+          "supine": [
+            -0.03,
+            0.19
+          ],
+          "right_lateral": [
+            0.29,
+            0.29
+          ],
+          "sitting": [
+            -0.34,
+            0.53
+          ]
+        },
+        "anteroposterior": {
+          "supine": [
+            0.69,
+            0.73
+          ],
+          "right_lateral": [
+            0.64,
+            0.81
+          ],
+          "sitting": [
+            1.91,
+            1.37
+          ]
+        }
+      },
+      "anterior_lower_ribcage": {
+        "craniocaudal": {
+          "supine": [
+            1.69,
+            0.61
+          ],
+          "right_lateral": [
+            1.03,
+            0.37
+          ],
+          "sitting": [
+            2.58,
+            1.26
+          ]
+        },
+        "mediolateral": {
+          "supine": [
+            0.11,
+            0.23
+          ],
+          "right_lateral": [
+            -0.29,
+            0.39
+          ],
+          "sitting": [
+            0.26,
+            0.78
+          ]
+        },
+        "anteroposterior": {
+          "supine": [
+            1.5,
+            0.73
+          ],
+          "right_lateral": [
+            0.94,
+            0.53
+          ],
+          "sitting": [
+            2.81,
+            1.14
+          ]
+        }
+      },
+      "left_lateral_lower_ribcage": {
+        "craniocaudal": {
+          "supine": [
+            1.08,
+            0.45
+          ],
+          "right_lateral": [
+            0.95,
+            0.4
+          ],
+          "sitting": [
+            2.19,
+            0.94
+          ]
+        },
+        "mediolateral": {
+          "supine": [
+            0.41,
+            0.44
+          ],
+          "right_lateral": [
+            1.7,
+            0.58
+          ],
+          "sitting": [
+            0.96,
+            0.85
+          ]
+        },
+        "anteroposterior": {
+          "supine": [
+            1.48,
+            0.52
+          ],
+          "right_lateral": [
+            1.65,
+            0.88
+          ],
+          "sitting": [
+            2.11,
+            1.09
+          ]
+        }
+      },
+      "anterior_abdomen": {
+        "craniocaudal": {
+          "supine": [
+            0.73,
+            0.6
+          ],
+          "right_lateral": [
+            0.54,
+            0.73
+          ],
+          "sitting": [
+            0.93,
+            0.93
+          ]
+        },
+        "mediolateral": {
+          "supine": [
+            0.15,
+            0.23
+          ],
+          "right_lateral": [
+            -0.54,
+            0.68
+          ],
+          "sitting": [
+            0.32,
+            1.04
+          ]
+        },
+        "anteroposterior": {
+          "supine": [
+            5.55,
+            1.83
+          ],
+          "right_lateral": [
+            5.23,
+            1.66
+          ],
+          "sitting": [
+            4.79,
+            2.6
+          ]
+        }
+      },
+      "left_lateral_abdomen": {
+        "craniocaudal": {
+          "supine": [
+            0.23,
+            0.2
+          ],
+          "right_lateral": [
+            -0.11,
+            0.33
+          ],
+          "sitting": [
+            0.58,
+            0.37
+          ]
+        },
+        "mediolateral": {
+          "supine": [
+            0.77,
+            0.4
+          ],
+          "right_lateral": [
+            1.17,
+            0.5
+          ],
+          "sitting": [
+            0.55,
+            0.61
+          ]
+        },
+        "anteroposterior": {
+          "supine": [
+            1.45,
+            0.42
+          ],
+          "right_lateral": [
+            1.25,
+            0.63
+          ],
+          "sitting": [
+            1.59,
+            0.73
+          ]
+        }
+      }
+    }
+  },
+  "sonpeayung2019": {
+    "citation": "Sonpeayung R, Tantisuwat A, Janwantanakul P, Thaveeratitham P. J Obes 2019;2019:9539846. doi:10.1155/2019/9539846. PMC6942872. Figures 2 and 3.",
+    "method": "OEP, 5 min quiet breathing, 20 healthy lean men aged 27 (control group; the obese group is omitted here)",
+    "read_level": "figure labels: means printed on the plots; SDs not readable",
+    "positions": {
+      "sit_no_support": {
+        "trunk": "upright, 90\u00b0 at hip, no backrest"
+      },
+      "sit_back_support": {
+        "trunk": "upright, padded support at shoulder level"
+      },
+      "fowler45": {
+        "trunk": "semi-sitting on bed, 45\u00b0 trunk inclination, hips and knees ~15\u00b0 flexed"
+      },
+      "supine": {
+        "trunk": "flat, pillow under head"
+      }
+    },
+    "units": "rc_pct and ab_pct: percent of chest-wall volume; rc_l and ab_l: litres",
+    "control_men": {
+      "sit_no_support": {
+        "rc_pct": 63.64,
+        "ab_pct": 36.36,
+        "rc_l": 0.35,
+        "ab_l": 0.19
+      },
+      "sit_back_support": {
+        "rc_pct": 64.82,
+        "ab_pct": 38.89,
+        "rc_l": 0.33,
+        "ab_l": 0.19,
+        "_note": "the printed labels sum to 103.7%; the other positions sum to 100. One label may be misprinted."
+      },
+      "fowler45": {
+        "rc_pct": 52.11,
+        "ab_pct": 47.89,
+        "rc_l": 0.23,
+        "ab_l": 0.2
+      },
+      "supine": {
+        "rc_pct": 37.51,
+        "ab_pct": 62.49,
+        "rc_l": 0.14,
+        "ab_l": 0.38
+      }
+    }
+  }
+}

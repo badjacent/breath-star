@@ -1,0 +1,131 @@
+{
+ "_note": "Anatomical numbers for the A-series. read_level: table (from the paper's table or page image) or abstract.",
+ "wilson1987_rib_rotation_frc_to_tlc": {
+  "citation": "Wilson TA et al. J Appl Physiol 1987;62:1872-1877. doi:10.1152/jappl.1987.62.5.1872",
+  "read_level": "abstract",
+  "subjects": "2 supine relaxed men, CT, FRC vs TLC breath-holds",
+  "pump_handle_deg": {
+   "rib3": 11,
+   "rib7": 7
+  },
+  "bucket_handle_deg": {
+   "rib3": 13,
+   "rib7": 10
+  },
+  "axis_angle_to_midplane_deg": 35,
+  "_caveat": "rotation over the inspiratory capacity; tidal scaling is an assumption"
+ },
+ "miyao1990_zoa_margin_travel_vc_mm": {
+  "citation": "Miyao H et al. Nihon Kyobu Shikkan Gakkai Zasshi 1990;28:1462-1470",
+  "read_level": "abstract",
+  "subjects": "24 healthy, ultrasound, supine, vital-capacity manoeuvre",
+  "left_anterior": [
+   103.0,
+   15.6
+  ],
+  "right_anterior": [
+   106.6,
+   17.2
+  ],
+  "left_posterior": [
+   108.5,
+   18.2
+  ],
+  "right_posterior": [
+   114.8,
+   16.3
+  ],
+  "relation_to_volume": "linear"
+ },
+ "boussuges2009_diaphragm_excursion_quiet_cm": {
+  "citation": "Boussuges A et al. Chest 2009;135:391-400. doi:10.1378/chest.08-1541",
+  "read_level": "abstract",
+  "lower_limit": {
+   "men": 1.0,
+   "women": 0.9
+  },
+  "_note": "means are in the full text, not yet read"
+ },
+ "gauthier1994_diaphragm_shape": {
+  "citation": "Gauthier AP et al. J Appl Physiol 1994;76:495-506. doi:10.1152/jappl.1994.76.2.495",
+  "read_level": "abstract",
+  "muscular_surface_area_change_rv_to_tlc": -0.41,
+  "shape_change": "front-to-back, hardly side-to-side",
+  "model": "widening piston"
+ },
+ "takashima2017_diameters_eelv_mm": {
+  "citation": "Takashima S et al. J Phys Ther Sci 2017;29:29-34. Table 2 (page image)",
+  "read_level": "table",
+  "subjects": "15 healthy men, 175 cm, 66.9 kg",
+  "upper_ribcage_ap": {
+   "supine": [
+    168.8,
+    11.2
+   ],
+   "right_lateral": [
+    206.0,
+    15.3
+   ],
+   "sitting": [
+    201.0,
+    13.0
+   ]
+  },
+  "lower_ribcage_ap": {
+   "supine": [
+    192.6,
+    21.9
+   ],
+   "right_lateral": [
+    237.8,
+    23.1
+   ],
+   "sitting": [
+    223.7,
+    22.9
+   ]
+  },
+  "lower_ribcage_ml": {
+   "supine": [
+    325.1,
+    13.5
+   ],
+   "right_lateral": [
+    282.8,
+    14.3
+   ],
+   "sitting": [
+    323.5,
+    14.6
+   ]
+  },
+  "abdomen_ap": {
+   "supine": [
+    181.1,
+    20.4
+   ],
+   "right_lateral": [
+    225.4,
+    28.9
+   ],
+   "sitting": [
+    271.5,
+    19.4
+   ]
+  },
+  "abdomen_ml": {
+   "supine": [
+    310.6,
+    22.4
+   ],
+   "right_lateral": [
+    271.5,
+    19.4
+   ],
+   "sitting": [
+    312.0,
+    22.6
+   ]
+  }
+ }
+}
