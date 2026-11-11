@@ -1018,3 +1018,8 @@ Three numbers in the code were marked "recalled, not read".
 direction only: the respiratory evidence is an after-effect on operating volume lasting breaths,
 after maximal efforts, not a stiffness change over minutes after gentle movement. H2 stays a
 labelled hypothesis, off by default.
+
+- **Tone factors (held ×5, light ×1.5, softened ×0.7), 2026-11-11:** searched for OEP or inductance
+  plethysmography during abdominal bracing, drawing-in or hollowing, and with an abdominal binder,
+  in healthy adults; none found (two extended searches). Abdominal-muscle elastography at rest and
+  contracted was not found in reach either (pass 14). The factors stay assumed.

@@ -5,21 +5,49 @@ import Foundation
 // in Commands*.swift; main.swift only dispatches.
 
 let usage = """
-breathstar — breathing body model (M1: six compartments, two lungs)
+breathstar — Breath Star v1: a mechanical model of breathing in the trunk (docs/DESIGN.md)
 
-  breathstar check
-      Per dataset: fit seated and supine, predict 45°; then side-lying checks.
-      Exits 1 if a gated prediction falls outside the published SD or a
-      sourced side-lying direction is wrong.
+Configurations and lessons (start here)
+  stage3 [--fit] [--volumes] [--upper U] [--prone-variants] [--free-lift] [--upright-squared]
+                         the postures with data, one parameter set: seated, 45°, supine, sides, face down
+  stage3-frc             where each posture's end-expiratory volume change comes from
+  configure NAME|x,y,z   one configuration's body and provenance (seated, reclined, supine, right, left, prone)
+  stage4                 the spine's shape: side-bend, slump, extension, rotation
+  stage4-fit | stage4-lungs | stage4-extension
+                         the bend law's gain; a side-bend per side; what moves the lower ribs in an arch
+  legs                   lying on the back with the knees bent or one foot standing
+  prone                  face down: where the breath goes, contact and anchoring variants
+  lesson [--file PATH]   a lesson step by step with verdicts (the built-in example by default)
+  lesson-slow [--file PATH]
+                         slow-state hypotheses across their sizes: the closing step against the opening one
+  measure-predictions [--lesson PATH]
+                         what a self-measurement should find (reference/SELF_MEASUREMENT_PLAN.md)
+  viewer [--out PATH] [--lesson PATH]
+                         the self-contained HTML viewer (default out/viewer.html)
 
-  breathstar params [--sex men|women]
-      Print the calibrated body parameters (Mendes 2020).
+The seated body and its fit
+  muscles                fixed-sign muscle groups against free per-coordinate forces
+  volume-fit [--arch L] [--wide]
+                         the muscle-group fit with and without OEP compartment volumes
+  compartments           shares with the model's flat margin and with OEP's arched one
+  uncertainty            the results across plausible alternative bodies
+  holds | kouyama | basis-test | arch-scan
+                         holding a region; an anchor test (Kouyama 2016); stiffness bases; the costal arch
+  side-lying             side-lying checks on the sided body
 
-  breathstar render [--sex men|women] [--posture NAME|<tilt°>] [--roll DEG]
-                     [--cycles N] [--rate BPM] [--dt SECONDS] [--diaphragm-gain G]
-      Write a CSV time series to stdout. Postures: seated, incline45, supine,
-      right-side, left-side, or a tilt from vertical in degrees. Roll: 0 on the
-      back, +90 right side down, -90 left side down.
+The anatomical layers (A1, A2)
+  anatomy | anatomy-svg | extension | back | volume-check | abdomen-shape | lateral-drop | jordanoglou
+                         A1 geometry: the fitted breath, drawings, spine extension, back markers,
+                         volume definitions, the belly's shape, the lower ribs' drop, a sourced check
+  a2 | a2-supine | timing | expiration | expiration-bounds | expiration-all
+                         A2 mechanics: the seated and supine bodies, muscle timing, expiration
+
+The first, lumped model (M1)
+  check                  per dataset: fit seated and supine, predict 45°; side-lying checks (exit 1 on failure)
+  params [--sex men|women]
+                         the calibrated parameters (Mendes 2020)
+  render [--sex men|women] [--posture NAME|<tilt°>] [--roll DEG] [--cycles N] [--rate BPM] [--dt S]
+                         a CSV time series to stdout (Tools/plot.py draws it)
 """
 
 struct Options {
