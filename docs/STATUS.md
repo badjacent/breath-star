@@ -20,9 +20,10 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   paralysed, Higenbottam 1977). Two misses hold under any drive convention: the belly paradox is also
   present sitting, where Kreitzer 1978 saw none (what masks it upright is not modelled), and the lower
   ribcage's front with the diaphragm alone barely moves where Estenne 1985 found it moving inward.
-  The diaphragm's insertional pull doesn't fix it (`docs/RESULTS.md`); the likelier cause is the
-  model's lower front being wholly apposed (abdominal pressure pushes it out) rather than partly
-  tied to the sternum and the lung's suction.
+  The diaphragm's insertional pull doesn't fix it (`docs/RESULTS.md`). An untested candidate: the
+  lower front's coupling to the sternum (the costal arch), which the lung's suction pulls in; the
+  front itself is apposed at those levels (a surgical source, LITERATURE pass 3), so apposition
+  alone is not the explanation.
   Whether each paradox is worse lying down flips with the convention (same drive or same breath),
   so the model doesn't decide it. On the earlier fitted supine body
   (`patientPatternsLyingDownKnownIssues`, `abdominalParadoxLyingDownKnownIssue`) the patterns were
