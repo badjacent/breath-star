@@ -1048,3 +1048,19 @@ labelled hypothesis, off by default.
 from the upper ribcage, more sideways than forward, and lowers FRC slightly), the size is not.
 Needed: Kruapanich's resting VRCp (full text), or a supported-arm (lying, arm overhead) dataset,
 which is the common lesson case.
+
+# Literature pass 17: weight per body region lying (2026-11-11)
+
+- **Gao Y, Zhang J, Zou C, et al. (2024).** A method for calculating vector forces at the
+  human–mattress interface during sleeping positions using image registration. *Sci Rep*
+  14:15238, PMC11220148. 5 healthy adults, supine and lateral. Per-region resultant forces (head,
+  chest, waist, hips, legs) were computed but **not reported**; only whole-body vertical force (≈ 99%
+  of body weight).
+- **Verhaert V, et al. (2011).** Ergonomics in bed design. *Ergonomics*, doi:10.1080/00140139.2010.538725.
+  Reports the fraction of body pressure in eight transverse bed sectors (per a review table).
+  **Full text not reachable**; the likeliest source of per-region load shares.
+- **Segment masses (a human–bed modelling paper, 71 kg group):** pelvis ≈ 18.3 kg (26%), shoulders
+  ≈ 12.1 kg (17%), chest ≈ 10.3 kg (15%), waist ≈ 9.4 kg (13%). Masses, not support loads.
+
+**For the model.** The anchoring fraction (`contactAnchoring`) still has no source. Needed: Verhaert
+2011's sector fractions, or another per-region load map, face down and side-lying.
