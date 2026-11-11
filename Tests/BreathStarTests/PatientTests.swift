@@ -2,53 +2,56 @@ import Testing
 @testable import BreathStar
 
 /// Three clinical patterns on the current bodies (`BodyGenerator.general`, the posture rules), one
-/// muscle group silenced, the rest of the drive unchanged (`breathstar patients`). The older tests in
-/// MechanicsSupine check the same patterns on the earlier fitted supine body.
+/// muscle group silenced (`breathstar patients`), under two conventions: the remaining drive
+/// unchanged, or the breath held at 0.56 L as everywhere else in the model. The "worse lying down"
+/// comparisons flip between them (Mortola holds at same drive, Higenbottam at the same breath), so
+/// they turn on how much a patient compensates, which the model doesn't know; only what holds under
+/// both is asserted. The older tests in MechanicsSupine check the earlier fitted supine body.
 @Suite struct PatientsOnTheRules {
     static let drive = Drive()
-    static func breath(_ c: BodyConfiguration, silence: Set<A2Muscles>) -> (m: SidedBreath, front: Double) {
-        let b = BodyGenerator.general(c, drive: drive).body.silenced(silence)
+    struct Out { var ribcage: Double; var belly: Double; var lowerFront: Double; var bellyFront: Double }
+    static func breath(_ c: BodyConfiguration, silence: Set<A2Muscles>, matched: Bool) -> Out {
+        var b = BodyGenerator.general(c, drive: drive).body.silenced(silence)
+        if matched {
+            let t = SidedBreath.measure(b.simulate(drive: drive), period: drive.period).tidalVolume
+            b.peakForce = b.peakForce.map { $0 * 0.56 / t }
+        }
         let sim = b.simulate(drive: drive).suffix(Int(drive.period / 0.002))
         let hi = sim.max { $0.totalLung < $1.totalLung }!, lo = sim.min { $0.totalLung < $1.totalLung }!
         let st = b.anatomy.sidedState(zip(hi.q, lo.q).map { $0 - $1 })
-        return (SidedBreath.measure(b.simulate(drive: drive), period: drive.period),
-                b.anatomy.sectorMotion(z: 18...25, psi: -40...40, side: .left, st).y)
-    }
-    static func ribcage(_ m: SidedBreath) -> Double { m.upper[0] + m.upper[1] + m.lower[0] + m.lower[1] }
-    static func belly(_ m: SidedBreath) -> Double { m.abdomen[0] + m.abdomen[1] }
-
-    /// Mortola 1978: with the rib muscles paralysed the ribcage moves inward, more so lying down.
-    @Test func ribcageParadoxWorseSupine() {
-        let s = Self.breath(.seated, silence: [.ribs]).m, p = Self.breath(.supine, silence: [.ribs]).m
-        #expect(Self.ribcage(s) < 0)
-        #expect(Self.ribcage(p) < Self.ribcage(s))
+        let m = SidedBreath.measure(b.simulate(drive: drive), period: drive.period)
+        return Out(ribcage: m.upper[0] + m.upper[1] + m.lower[0] + m.lower[1], belly: m.abdomen[0] + m.abdomen[1],
+                   lowerFront: b.anatomy.sectorMotion(z: 18...25, psi: -40...40, side: .left, st).y,
+                   bellyFront: b.anatomy.sectorMotion(z: 4...14, psi: -20...20, side: .left, st).y)
     }
 
-    /// Higenbottam 1977 (Thorax 32:589; magnetometers on the front belly wall): with the diaphragm
-    /// paralysed the front belly moves inward on inspiration, best seen lying down; upright there may
-    /// be none (Kreitzer 1978). The model's front belly moves inward 1.59 mm seated and 1.37 supine:
-    /// paradox in both, larger seated. What masks it upright (the contents' weight, expiratory
-    /// abdominal activity that recoils outward at inspiration) is not in the model.
-    @Test func bellyParadoxLyingDown() {
-        func front(_ c: BodyConfiguration) -> Double {
-            let b = BodyGenerator.general(c, drive: Self.drive).body.silenced([.diaphragm])
-            let sim = b.simulate(drive: Self.drive).suffix(Int(Self.drive.period / 0.002))
-            let hi = sim.max { $0.totalLung < $1.totalLung }!.q, lo = sim.min { $0.totalLung < $1.totalLung }!.q
-            return b.anatomy.sectorMotion(z: 4...14, psi: -20...20, side: .left, b.anatomy.sidedState(zip(hi, lo).map { $0 - $1 })).y
+    /// Mortola 1978: rib muscles paralysed, the ribcage moves inward (in both postures, both conventions).
+    @Test func ribcageParadox() {
+        for matched in [false, true] { for c in [BodyConfiguration.seated, .supine] {
+            #expect(Self.breath(c, silence: [.ribs], matched: matched).ribcage < 0)
+        } }
+    }
+
+    /// Higenbottam 1977 (Thorax 32:589; magnetometers on the front belly wall): diaphragm paralysed, the
+    /// front belly moves inward, best seen lying down; upright there may be none (Kreitzer 1978). The
+    /// model has the paradox lying down, but also sitting (−1.6 mm same drive, −3.7 mm same breath):
+    /// what masks it upright (the contents' weight, expiratory abdominal activity) is not modelled.
+    @Test func bellyParadox() {
+        for matched in [false, true] {
+            #expect(Self.breath(.supine, silence: [.diaphragm], matched: matched).bellyFront < 0)
+            withKnownIssue("Kreitzer 1978: upright, little or no belly paradox") {
+                #expect(Self.breath(.seated, silence: [.diaphragm], matched: matched).bellyFront > -0.5)
+            }
         }
-        let s = front(.seated), p = front(.supine)
-        #expect(p < 0)
-        withKnownIssue("Higenbottam 1977: the front belly's inward motion should be larger lying down") { #expect(p < s) }
-        withKnownIssue("Kreitzer 1978: upright, little or no paradox") { #expect(s > -0.5) }
     }
 
     /// Estenne 1985: the diaphragm alone, supine, moves the lower ribcage's front inward. The model's
-    /// front barely moves either way (−0.04 mm seated, +0.02 mm supine).
+    /// front barely moves (+0.02 to +0.03 mm).
     @Test func lowerFrontWithTheDiaphragmAlone() {
-        let p = Self.breath(.supine, silence: [.ribs])
-        #expect(abs(p.front) < 0.1)
+        let p = Self.breath(.supine, silence: [.ribs], matched: false)
+        #expect(abs(p.lowerFront) < 0.1)
         withKnownIssue("Estenne 1985: the lower ribcage's front should move inward, supine, diaphragm alone") {
-            #expect(p.front < 0)
+            #expect(p.lowerFront < 0)
         }
     }
 }

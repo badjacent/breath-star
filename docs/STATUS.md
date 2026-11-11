@@ -15,12 +15,13 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   lateral lower ribs less; one small study (n = 7, at 1.5× tidal volume) found more. In an arch the
   ribs ease; the belly wall and flanks stiffen. A lower-back arch alone moves the lower ribcage more,
   a mid-back arch both levels less (contrasts C and C2 of the self-measurement plan).
-- **Patient patterns lying down.** On the current bodies (`breathstar patients`, `PatientTests`):
-  Mortola 1978's ribcage paradox, worse supine, holds; Higenbottam 1977's belly paradox (front wall,
-  magnetometers) should be best seen lying down and absent upright (Kreitzer 1978), but the model's is
-  larger sitting (−1.59 vs −1.37 mm): what masks it upright (the contents' weight, expiratory
-  abdominal activity) is not modelled; Estenne 1985's inward lower front
-  (diaphragm alone, supine) is about zero (+0.02 mm). On the earlier fitted supine body
+- **Patient patterns** (`breathstar patients`, `PatientTests`): the paradoxes themselves hold
+  (ribcage inward with the rib muscles paralysed, Mortola 1978; front belly inward with the diaphragm
+  paralysed, Higenbottam 1977). Two misses hold under any drive convention: the belly paradox is also
+  present sitting, where Kreitzer 1978 saw none (what masks it upright is not modelled), and the lower
+  ribcage's front with the diaphragm alone barely moves where Estenne 1985 found it moving inward.
+  Whether each paradox is worse lying down flips with the convention (same drive or same breath),
+  so the model doesn't decide it. On the earlier fitted supine body
   (`patientPatternsLyingDownKnownIssues`, `abdominalParadoxLyingDownKnownIssue`) the patterns were
   lost when volumes became OEP-style surface volumes.
 
