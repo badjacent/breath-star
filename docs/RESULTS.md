@@ -70,6 +70,14 @@ recordings the pattern so far is: the model carries the mechanical relations (br
 proportional tone, the breath as a gauge of effort) and none of the attentional ones (tracing,
 which side, integration). "One side breathes more" is a few millilitres either way.
 
+## Slow state over a lesson
+
+The sourced after-effects of respiratory-muscle thixotropy last 3–5 breaths after maximal efforts
+(Lima 2019, Homma & Hagbarth 2000), shorter than any lesson step. So, on the evidence, a lesson's
+opening and closing rest breathe the same; the before/after changes that `lesson-slow` and the
+viewer's slow-state case show (H1 tone residue, H2 use and stillness) are unsourced hypotheses for
+exploration, off by default. A before/after recording (self-measurement contrast G) would test them.
+
 ## Tried and not adopted
 
 Each is kept as an option, so it can be revisited.

@@ -6,6 +6,12 @@ import Foundation
 // belly than the opening scan"), never "this lesson does X". Nothing here is fitted to the lesson's
 // own claims.
 //
+// What the evidence supports (decided 2026-11-11): the sourced after-effects of respiratory-muscle
+// thixotropy are shifts in operating volume lasting 3–5 breaths (~20 s) after maximal efforts
+// (LITERATURE pass 15). At lesson scale (steps of minutes) they decay inside a step, so an
+// evidence-based slow state predicts no before/after change. H1 and H2 are kept as exploration
+// hypotheses, explicitly unsourced, not as predictions.
+//
 // H1, tone residue: each coordinate's background tone moves toward the step's tone (first order,
 // time constant τ). Deliberate tone in a step overrides it while the step lasts; once let go, the
 // residue is what remains. Lying supported and unattended, the target is `unattended` (lower).
