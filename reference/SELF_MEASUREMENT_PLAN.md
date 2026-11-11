@@ -149,23 +149,23 @@ Markers (mm, outward): lateral lower ribs L/R (9th–10th rib level, z 13–18 /
 front belly (umbilicus region, forward), front upper chest (forward).
 
      position                        rc/ab %    lat. lowest L/R  lat. lower L/R  belly fwd  chest fwd  lungs L/R mL
-  A  sitting upright                 55/45      0.82/0.82        0.92/0.92       3.04       2.75       280/280
-  S  standing                        57/43      0.79/0.79        0.94/0.94       2.56       2.88       280/280
-  B  sitting slumped                 44/56      0.91/0.91        0.85/0.85       5.39       2.17       280/280
-  C  sitting, lower back arched 15°  57/43      0.79/0.79        0.94/0.94       2.53       2.89       280/280
-  C2 sitting, mid-back arched 15°    61/39      0.57/0.57        0.82/0.82       2.57       2.99       280/280
-  D  sitting, side-bend left 20°     55/45      0.63/1.03        0.73/1.15       3.02       2.75       284/276
-  E  sitting, side-bend right 20°    55/45      1.03/0.63        1.15/0.73       3.02       2.75       276/284
-  F  sitting, turned left 30°        45/55      1.21/1.21        0.95/0.95       4.17       2.24       280/280
-  G  lying on the back, legs long    33/67      2.26/2.26        1.46/1.46       5.51       1.88       280/280
-  H  lying on the back, knees bent   31/69      1.99/1.99        1.38/1.38       5.98       1.78       280/280
-  I  lying on the right side         32/68      2.72/0.69        1.87/0.97       7.33       1.93       228/332
-  J  lying face down                 26/74      5.07/5.07        2.38/2.38       0.47       1.47       280/280
-  K  reclined 45°                    48/52      1.31/1.31        1.17/1.17       3.78       2.52       280/280
+  A  sitting upright                 55/45      0.80/0.80        0.91/0.91       3.04       2.74       280/280
+  S  standing                        57/43      0.78/0.78        0.93/0.93       2.57       2.88       280/280
+  B  sitting slumped                 44/56      0.91/0.91        0.85/0.85       5.37       2.16       280/280
+  C  sitting, lower back arched 15°  57/43      0.77/0.77        0.93/0.93       2.54       2.89       280/280
+  C2 sitting, mid-back arched 15°    61/39      0.56/0.56        0.81/0.81       2.57       2.99       280/280
+  D  sitting, side-bend left 20°     55/45      0.62/1.02        0.72/1.13       3.02       2.74       284/276
+  E  sitting, side-bend right 20°    55/45      1.02/0.62        1.13/0.72       3.02       2.74       276/284
+  F  sitting, turned left 30°        44/56      1.20/1.20        0.95/0.95       4.17       2.24       280/280
+  G  lying on the back, legs long    33/67      2.26/2.26        1.45/1.45       5.47       1.89       280/280
+  H  lying on the back, knees bent   31/69      1.98/1.98        1.37/1.37       5.94       1.79       280/280
+  I  lying on the right side         32/68      2.71/0.68        1.86/0.96       7.30       1.94       228/332
+  J  lying face down                 26/74      5.06/5.06        2.37/2.37       0.45       1.47       280/280
+  K  reclined 45°                    48/52      1.29/1.29        1.16/1.16       3.77       2.52       280/280
 
-  G vs H, front belly (mm forward): low (2–8 cm above the iliac crests) 3.96 → 5.02, high (10–16 cm) 4.99 → 4.82.
+  G vs H, front belly (mm forward): low (2–8 cm above the iliac crests) 3.94 → 4.99, high (10–16 cm) 4.96 → 4.80.
 
-  Before/after Example: sitting, lying, one foot standing: belly share scan → final-rest: no slow state 67.3 → 67.3; H2 (use loosens, gain 0.3, τ 5 min) 67.5 → 70.8.
+  Before/after Example: sitting, lying, one foot standing: belly share scan → final-rest: no slow state 67.0 → 67.0; H2 (use loosens, gain 0.3, τ 5 min) 67.1 → 70.5.
 ```
 
 Generated at commit 8ef38f7 (the commit that added this file; rerun the command after any rules change and keep the original table for the comparison).
