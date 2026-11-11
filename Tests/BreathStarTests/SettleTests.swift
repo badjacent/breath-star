@@ -103,7 +103,8 @@ import Testing
 
     /// Sitting → supine end-expiratory volume: −0.81 L (Lumb & Nunn 1991; Attali 2024 −0.79). The
     /// linear settle gave −1.08 (a known issue until the relaxed system stiffened toward residual
-    /// volume, `GravityRules.expiratoryReserve`). Seated → weightless alone gives −0.42 (recalled, not
-    /// read: Elliott 1994 reports FRC ~15% below standing in microgravity; check before relying on it).
+    /// volume, `GravityRules.expiratoryReserve`). Seated → weightless alone gives −0.42; Elliott et al.
+    /// 1994 (Spacelab SLS-1, n = 4; checked 2026-11-11): FRC ~15% (~0.5 L) below standing in
+    /// microgravity, 32% below standing supine.
     @Test func supineFRC() { #expect(abs(Self.supine.frcChange + 0.81) < 0.1) }
 }

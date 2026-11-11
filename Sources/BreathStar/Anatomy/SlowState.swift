@@ -11,8 +11,14 @@ import Foundation
 // residue is what remains. Lying supported and unattended, the target is `unattended` (lower).
 // H2, use and stillness (thixotropy): muscle just moved is looser, muscle held still is stiffer.
 // "Moved" is how far the step's movement strains the coordinate's wall (Rule B's strain, saturating
-// at 0.1); a step with no spine movement is still. Homma & Hagbarth-type evidence is recalled, not
-// read (docs/LESSON_ADAPTATION.md §5): verify before use.
+// at 0.1); a step with no spine movement is still.
+// Evidence (checked 2026-11-11, reference/LITERATURE.md pass 15): the ribcage's respiratory muscles
+// are thixotropic (Homma & Hagbarth 2000, abstract), but the measured after-effects are on the
+// operating volumes, not the stiffness: after maximal 5 s contractions the end-inspiratory volume
+// rises ~0.28 L or the end-expiratory falls ~0.2 L, for 3–5 breaths (Lima et al. 2019, OEP, n = 28),
+// with timing unchanged. Limb muscle stiffens while still and loosens with movement (Lakie &
+// Campbell 2019). So H2's direction has support; its mechanism here (stiffness), its time constant
+// (minutes) and its trigger (gentle movement) do not.
 
 public struct SlowHypotheses: Sendable {
     public var toneResidue = false

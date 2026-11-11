@@ -80,7 +80,7 @@ func runLessonSlow(_ args: ArraySlice<String>) {
     print("""
 
       Reading: "if <hypothesis> at <size>, the final rest's breath differs from the opening scan by <Δ>". None of the sizes
-      is sourced; H2's thixotropy evidence is recalled, not read. Nothing is fitted to the lesson's claims, and a breath felt
+      is sourced; respiratory-muscle thixotropy is real but measured as short after-effects on volumes (3–5 breaths). Nothing is fitted to the lesson's claims, and a breath felt
       beyond the trunk (from the feet to the head) is outside what the trunk model can represent.
     """)
 }

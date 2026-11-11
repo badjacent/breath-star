@@ -983,3 +983,35 @@ the 3–6° reported. The slope beyond that, the bulge peak and the contact are 
   search; found only whole-body or peak interface pressures (Pickenbrock et al. 2017 BMC Nursing,
   supine and side-lying, n = 4; Stern et al. 2024 BioMed Eng OnLine, 19 postures incl. prone, n =
   10, maps not segment shares). No per-segment weight fractions. Not used.
+
+# Literature pass 15: checking what was recalled (2026-11-11)
+
+Three numbers in the code were marked "recalled, not read".
+
+- **Elliott AR, Prisk GK, Guy HJB, West JB (1994).** Lung volumes during sustained microgravity on
+  Spacelab SLS-1. *J Appl Physiol* 77(4):2005–2014. Abstract via a summary: 4 subjects, 9 days.
+  FRC ~15% (~0.5 L) below standing in microgravity, 32% below standing supine; residual volume −18%
+  in microgravity, unchanged supine. **Confirms** the settle's seated → weightless −0.42 L in size.
+- **White AA, Panjabi MM** (1978 review in *Spine*; *Clinical Biomechanics of the Spine*, 1990).
+  Thoracic flexion–extension per level, from a secondary reproduction: T1–T5 4°, T6 5°, T7–T9 6°,
+  T10 9°, T11–T12 12° (sum ≈ 76°); lumbar L1–L2 12° (a 2015 PMC table, PMC4360610). **Confirms** the
+  flexion share (≈ 0.49 vs 0.5 used). Lateral bending and axial rotation per level not found: those
+  two shares stay recalled.
+- **Homma I, Hagbarth KE (2000).** Thixotropy of rib cage respiratory muscles in normal subjects.
+  *J Appl Physiol* 89(5):1753–1758. Abstract: 12 healthy, inductance plethysmography; after
+  conditioning manoeuvres the end-expiratory ribcage position shifts (significant for two of three
+  manoeuvre types).
+- **Lima INDF, Sarmento A, Goes MC, … LoMauro A, Reid WD, Aliverti A, Fregonezi GADF (2019).**
+  After-effects of thixotropic maneuvers on chest wall and compartmental operational volumes of
+  healthy subjects using OEP. *Front Physiol* 10:1376. Read through a summary. 28 healthy; maximal
+  5 s inspiratory or expiratory efforts against a closed shutter at TLC or RV, three in a row.
+  After inspiratory efforts the end-inspiratory volume rose ~0.28 L (upper and lower ribcage, not
+  the abdomen) for 3–5 breaths; after expiratory efforts from RV the end-expiratory volume fell
+  ~0.2 L (upper ribcage and abdomen). Timing and flow unchanged.
+- **Lakie M, Campbell KS (2019).** Muscle thixotropy: where are we now? (review). Limb muscle
+  stiffens while still and loosens with movement.
+
+**For the model.** Slow-state H2 (use loosens, stillness stiffens, τ 5 min) has support in
+direction only: the respiratory evidence is an after-effect on operating volume lasting breaths,
+after maximal efforts, not a stiffness change over minutes after gentle movement. H2 stays a
+labelled hypothesis, off by default.
