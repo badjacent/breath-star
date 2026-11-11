@@ -74,6 +74,11 @@ Each is kept as an option, so it can be revisited.
   exactly, but was chosen after looking at 45°, which would stop it being a test.
 - **The bend's effect on the domes, solved from a fluid abdomen** (`bendDomeSolved`): makes
   extension worse and erases the side-bend's lung effect (the contents would just flow across).
+- **The diaphragm's insertional pull on the costal margin** (`withInsertion`, `breathstar insertion`):
+  meant for Estenne 1985's inward lower front with the diaphragm alone, supine. It pushes the lower
+  front further out (the lifted margin swings the ribs forward), even with the front fibres nearly
+  horizontal (+0.10 mm at 85°; sitting it turns inward, −0.18), and at full Laplace strength it moves
+  the healthy seated breath toward the belly (40/15/45 → 33/12/55), away from Mendes.
 - **Face down: stiffer flanks** (`flankStiffness`): too slow. **A free lift off the floor**
   (`contactFreeLift`, `contactAnchoring`): fixes face down (44%) only together with no postural
   loss, and breaks side-lying.

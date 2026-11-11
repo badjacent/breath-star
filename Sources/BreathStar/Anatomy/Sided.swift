@@ -393,6 +393,10 @@ public struct SidedBody: Sendable {
     /// V_m = C_m · (Ppl_left − Ppl_right) (positive: into the right hemithorax). 0 = rigid (until
     /// 2026-11-09). Set from Hubmayr & Margulies 1992 via `withMediastinum(transmission:)`.
     public var mediastinalCompliance = 0.0
+    /// The diaphragm's insertional pull on the ribs (Insertion.swift): per hemidiaphragm (left, right),
+    /// the generalized force on each coordinate per cmH2O of that hemidiaphragm's muscle pressure.
+    /// Empty: none (the diaphragm acts on the ribs only through the abdominal pressure).
+    public var insertion: [[Double]] = []
 
     public var stiffnessMatrix: [[Double]] {
         let n = SidedCoordinate.count
@@ -641,6 +645,10 @@ public struct SidedBody: Sendable {
             let act = drive.activation(at: t)
             var rhs = [Double](repeating: 0, count: n + 4)
             for i in 0..<n { rhs[i] = peakForce[i] * act }
+            for (k, g) in insertion.enumerated() {
+                let p = diaphragmPressure(side: k) * act
+                for i in 0..<n { rhs[i] += p * g[i] }
+            }
             rhs[n] = r / dt * previous[0]; rhs[n + 1] = r / dt * previous[1]
             let x = multiply(inverse, rhs)
             let q = Array(x[0..<n]), vm = x[n + 3]
