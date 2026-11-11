@@ -20,7 +20,7 @@ Swift 6, macOS 14 or later. No dependencies.
 
 ```sh
 swift build -c release
-swift test                                   # 136 tests, about 30 s (known issues: see docs/STATUS.md)
+swift test                                   # 134 tests, about 30 s (known issues: see docs/STATUS.md)
 
 .build/release/breathstar stage3             # the postures with data: seated, 45°, supine, side, face down
 .build/release/breathstar stage4             # the spine's shape: side-bend, slump, extension, rotation

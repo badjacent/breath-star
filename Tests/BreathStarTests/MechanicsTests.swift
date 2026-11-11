@@ -164,28 +164,11 @@ import Testing
         #expect(d.transverse > 0)
     }
 
-    /// Estenne 1985 (supine, denervated) and Mortola 1978. Reproduced for a while (sternal coupling,
-    /// slice volumes), lost again on the consistent surface-volume definition: KNOWN ISSUES.
-    @Test func patientPatternsLyingDownKnownIssues() {
-        let s = seated(), p = supine().body
-        let sd = s.asPatient(paralysed: [.ribs], chronic: false), pd = p.asPatient(paralysed: [.ribs], chronic: false)
-        withKnownIssue("Estenne 1985: supine lower-ribcage AP should fall with the diaphragm alone") {
-            #expect(pd.diameterChanges(atHeight: 21.5).ap < 0)
-        }
-        withKnownIssue("Mortola 1978: ribcage paradox should be worse supine") {
-            let a = signed(pd), b = signed(sd)
-            #expect(a.upper + a.lower < b.upper + b.lower)
-        }
-    }
-
-    /// Higenbottam 1977: the abdominal paradox should be clearest lying down. Still missed.
-    @Test func abdominalParadoxLyingDownKnownIssue() {
-        let sr = seated().asPatient(paralysed: [.diaphragm], chronic: false)
-        let pr = supine().body.asPatient(paralysed: [.diaphragm], chronic: false)
-        withKnownIssue("Higenbottam 1977: abdominal paradox should be clearest lying down") {
-            #expect(signed(pr).abdomen < signed(sr).abdomen)
-        }
-    }
+    // Retired 2026-11-11: patientPatternsLyingDownKnownIssues and abdominalParadoxLyingDownKnownIssue
+    // checked Estenne 1985, Mortola 1978 and Higenbottam 1977 on this earlier fitted supine body,
+    // superseded by the posture rules. The patterns are tested on the current bodies in
+    // PatientTests (Mortola and the paradoxes hold; Estenne holds with the costal arch ×5; the
+    // sitting belly paradox is masked by upright expiratory abdominals).
 
     /// Hypothesis A (ribcage pinned) explains healthy supine markers better than B (less rib drive).
     @Test func pinnedRibcageFitsHealthyMarkersBetter() {

@@ -4,7 +4,7 @@ As of 2026-11-11. All seven stages of the lesson plan (`docs/LESSON_ADAPTATION.m
 configuration → body, the gravity rules, the spine's shape, lessons as data, slow-state hypotheses,
 and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
 
-## Known issues (the 8 `withKnownIssue` checks)
+## Known issues (the 5 `withKnownIssue` checks)
 
 - **Face down** (`proneRibcageShare`, two checks): the belly takes 74% of the breath; LoMauro 2024
   measured 42.5%. The floor holds the chest back more than the belly, and the breath escapes through
@@ -23,9 +23,8 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   the window where the seated patient directions hold); the diaphragm's insertional pull doesn't do
   it (`docs/RESULTS.md`).
   Whether each paradox is worse lying down flips with the convention (same drive or same breath),
-  so the model doesn't decide it. On the earlier fitted supine body
-  (`patientPatternsLyingDownKnownIssues`, `abdominalParadoxLyingDownKnownIssue`) the patterns were
-  lost when volumes became OEP-style surface volumes.
+  so the model doesn't decide it. The older tests of these patterns on the earlier fitted supine body were retired on
+  2026-11-11 (superseded by the posture rules).
 
 ## Open problems
 
