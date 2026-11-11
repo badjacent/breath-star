@@ -32,16 +32,30 @@ import Testing
         } }
     }
 
-    /// Higenbottam 1977 (Thorax 32:589; magnetometers on the front belly wall): diaphragm paralysed, the
-    /// front belly moves inward, best seen lying down; upright there may be none (Kreitzer 1978). The
-    /// model has the paradox lying down, but also sitting (−1.6 mm same drive, −3.7 mm same breath):
-    /// what masks it upright (the contents' weight, expiratory abdominal activity) is not modelled.
+    /// Higenbottam 1977 (Thorax 32:589; magnetometers on the front belly wall): with the diaphragm
+    /// paralysed the front belly moves inward, best seen lying down; upright there may be none
+    /// (Kreitzer 1978). The passive model has the paradox sitting too (−1.6 mm same drive, −3.6 mm
+    /// same breath). What masks it upright (2026-11-11): the patient's expiratory abdominals, drawing
+    /// the belly in on the out-breath and releasing it on the in-breath. The abdominals work upright
+    /// and much less lying down (Druz & Sharp 1981; surface EMG higher standing than supine,
+    /// LITERATURE pass 19), so: compensation sitting, none lying. Size ASSUMED: 1.5 cmH2O
+    /// (`breathstar patients --expiratory`: the sitting paradox vanishes from ~1.4).
     @Test func bellyParadox() {
-        for matched in [false, true] {
-            #expect(Self.breath(.supine, silence: [.diaphragm], matched: matched).bellyFront < 0)
-            withKnownIssue("Kreitzer 1978: upright, little or no belly paradox") {
-                #expect(Self.breath(.seated, silence: [.diaphragm], matched: matched).bellyFront > -0.5)
+        func front(_ c: BodyConfiguration, matched: Bool, expiratory: Double) -> Double {
+            var b = BodyGenerator.general(c, drive: Self.drive).body.silenced([.diaphragm])
+            b.expiratoryAbdominalPressure = expiratory
+            if matched {
+                let t = SidedBreath.measure(b.simulate(drive: Self.drive), period: Self.drive.period).tidalVolume
+                b.peakForce = b.peakForce.map { $0 * 0.56 / t }
             }
+            let sim = b.simulate(drive: Self.drive).suffix(Int(Self.drive.period / 0.002))
+            let hi = sim.max { $0.totalLung < $1.totalLung }!.q, lo = sim.min { $0.totalLung < $1.totalLung }!.q
+            return b.anatomy.sectorMotion(z: 4...14, psi: -20...20, side: .left, b.anatomy.sidedState(zip(hi, lo).map { $0 - $1 })).y
+        }
+        for matched in [false, true] {
+            #expect(front(.supine, matched: matched, expiratory: 0) < 0)          // lying: paradox
+            #expect(front(.seated, matched: matched, expiratory: 0) < 0)          // passive, sitting: paradox too
+            #expect(front(.seated, matched: matched, expiratory: 1.5) > -0.5)     // with the upright compensation: little or none
         }
     }
 

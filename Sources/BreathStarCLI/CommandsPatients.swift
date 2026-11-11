@@ -11,6 +11,7 @@ import Foundation
 func runPatients(_ args: ArraySlice<String>) {
     let drive = Drive()
     if args.contains("--arch") { runPatientsArch(drive); return }
+    if args.contains("--expiratory") { runPatientsExpiratory(drive); return }
     func row(_ label: String, _ c: BodyConfiguration, silence: Set<A2Muscles>, matched: Bool) -> (rc: Double, ab: Double, front: Double, belly: Double) {
         var b = BodyGenerator.general(c, drive: drive).body.silenced(silence)
         if matched {  // the same breath as everywhere else in the model (quiet tidal held)
@@ -69,4 +70,25 @@ func runPatientsArch(_ drive: Drive) {
               + pad(f(fit.chiSquared, 2), 12) + pad(shares(.seated), 18) + shares(.supine))
     }
     print("  Estenne 1985: lower front in, lower sides out (tetraplegia, supine). Mendes men seated 37.4/21.9/40.8, supine 19.5/11.5/69.8.")
+}
+
+/// `patients --expiratory`: the diaphragm paralysed, the expiratory abdominals drawing the belly in
+/// on the out-breath and releasing it on the in-breath (the classic upright compensation). How much
+/// expiratory pressure masks the front belly's paradox sitting (Kreitzer 1978: none upright)?
+func runPatientsExpiratory(_ drive: Drive) {
+    print("Diaphragm paralysed, expiratory abdominal pressure P (cmH2O at peak), breath held at 0.56 L. Front belly AP over the in-breath, mm.")
+    print("  " + pad("P", 6) + pad("seated", 10) + "supine")
+    for p in [0.0, 0.5, 1, 2, 3, 5] {
+        func front(_ c: BodyConfiguration) -> Double {
+            var b = BodyGenerator.general(c, drive: drive).body.silenced([.diaphragm])
+            b.expiratoryAbdominalPressure = p
+            let t = SidedBreath.measure(b.simulate(drive: drive), period: drive.period).tidalVolume
+            b.peakForce = b.peakForce.map { $0 * 0.56 / t }
+            let sim = b.simulate(drive: drive).suffix(Int(drive.period / 0.002))
+            let hi = sim.max { $0.totalLung < $1.totalLung }!.q, lo = sim.min { $0.totalLung < $1.totalLung }!.q
+            return b.anatomy.sectorMotion(z: 4...14, psi: -20...20, side: .left, b.anatomy.sidedState(zip(hi, lo).map { $0 - $1 })).y
+        }
+        print("  " + pad(f(p, 1), 6) + pad(f(front(.seated), 2), 10) + f(front(.supine), 2))
+    }
+    print("  Healthy synchrony bounds seated expiratory pressure to ~0.2 cmH2O (breathstar expiration-bounds); a patient's compensation is not bounded by it.")
 }

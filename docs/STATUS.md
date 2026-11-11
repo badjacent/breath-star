@@ -4,7 +4,7 @@ As of 2026-11-11. All seven stages of the lesson plan (`docs/LESSON_ADAPTATION.m
 configuration → body, the gravity rules, the spine's shape, lessons as data, slow-state hypotheses,
 and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
 
-## Known issues (the 10 `withKnownIssue` checks)
+## Known issues (the 8 `withKnownIssue` checks)
 
 - **Face down** (`proneRibcageShare`, two checks): the belly takes 74% of the breath; LoMauro 2024
   measured 42.5%. The floor holds the chest back more than the belly, and the breath escapes through
@@ -17,8 +17,8 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   a mid-back arch both levels less (contrasts C and C2 of the self-measurement plan).
 - **Patient patterns** (`breathstar patients`, `PatientTests`): the paradoxes themselves hold
   (ribcage inward with the rib muscles paralysed, Mortola 1978; front belly inward with the diaphragm
-  paralysed, Higenbottam 1977). One miss holds under any drive convention: the belly paradox is also present sitting, where
-  Kreitzer 1978 saw none (what masks it upright is not modelled). Estenne 1985's inward lower front
+  paralysed, Higenbottam 1977). The belly paradox sitting, where Kreitzer 1978 saw none, is masked by a patient's expiratory
+  abdominals (used upright, much less lying down; size assumed, ~1.5 cmH2O). Estenne 1985's inward lower front
   (diaphragm alone, supine) is met since 2026-11-11 by the costal arch's stiffness (×5, fitted inside
   the window where the seated patient directions hold); the diaphragm's insertional pull doesn't do
   it (`docs/RESULTS.md`).

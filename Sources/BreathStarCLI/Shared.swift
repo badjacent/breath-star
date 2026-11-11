@@ -17,7 +17,8 @@ Configurations and lessons (start here)
                          the bend law's gain; a side-bend per side; what moves the lower ribs in an arch
   legs                   lying on the back with the knees bent or one foot standing
   prone                  face down: where the breath goes, contact and anchoring variants
-  patients               three clinical patterns (one muscle group silenced), sitting against lying
+  patients [--arch] [--expiratory]
+                         three clinical patterns (one muscle group silenced), sitting against lying
   insertion [--steep]    the diaphragm's insertional pull on the ribs (an option, off): a feasibility scan
   lesson [--file PATH]   a lesson step by step with verdicts (the built-in example by default)
   lesson-slow [--file PATH]

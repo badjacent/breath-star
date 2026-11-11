@@ -1079,3 +1079,21 @@ which is the common lesson case.
 upper ribs' postural loss applies face down too (`uprightUpperDrive` as it stands). The route that
 fixed face down by removing that loss (`breathstar prone`: free lift + no loss → 44%) is
 contradicted; face down needs a mechanical answer (with a free lift and the loss: 59.8%).
+
+# Literature pass 19: the abdominals by posture (2026-11-11)
+
+- **De Troyer A, Estenne M, et al. (1990).** Transversus abdominis muscle function in humans. *J Appl
+  Physiol* 68(3). Abstract via a summary: seated; the transversus is recruited first in expiration,
+  at lower ventilation than thought.
+- **A surface-EMG study of healthy subjects across postures** (search summary): external oblique and
+  transversus/internal oblique activity significantly higher standing than in the other positions,
+  supine included, in both breathing phases.
+- **De Troyer 1983** (summary): tonic abdominal activity lowers abdominal volume and end-expiratory
+  lung volume below neutral.
+- With Druz & Sharp 1981 (tonic oblique activity standing): **the abdominals work upright and much
+  less lying down.**
+
+**For the model.** Diaphragm paralysis: expiratory abdominals drawing the belly in on the out-breath
+and releasing it on the in-breath mask the front belly's paradox from ~1.4 cmH2O (`breathstar
+patients --expiratory`); used upright and not lying down, they give Kreitzer 1978 (no paradox
+upright) and Higenbottam 1977 (paradox lying down). Size assumed. `SidedBody.expiratoryAbdominalPressure`.

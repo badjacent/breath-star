@@ -397,6 +397,9 @@ public struct SidedBody: Sendable {
     /// the generalized force on each coordinate per cmH2O of that hemidiaphragm's muscle pressure.
     /// Empty: none (the diaphragm acts on the ribs only through the abdominal pressure).
     public var insertion: [[Double]] = []
+    /// Expiratory abdominal muscle pressure, cmH2O at peak (the wall drawn in during expiration, as
+    /// `A2Body.expiratoryAbdominalPressure`). 0 = relaxed (the default).
+    public var expiratoryAbdominalPressure = 0.0
 
     public var stiffnessMatrix: [[Double]] {
         let n = SidedCoordinate.count
@@ -645,6 +648,10 @@ public struct SidedBody: Sendable {
             let act = drive.activation(at: t)
             var rhs = [Double](repeating: 0, count: n + 4)
             for i in 0..<n { rhs[i] = peakForce[i] * act }
+            if expiratoryAbdominalPressure != 0 {
+                let a = SidedCoordinate.abdomen.rawValue
+                rhs[a] -= expiratoryAbdominalPressure * geometry.own[a] * drive.expiratoryActivation(at: t)
+            }
             for (k, g) in insertion.enumerated() {
                 let p = diaphragmPressure(side: k) * act
                 for i in 0..<n { rhs[i] += p * g[i] }

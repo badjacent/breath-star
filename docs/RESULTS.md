@@ -52,7 +52,8 @@ paralysed (Mortola 1978) and the front belly with the diaphragm paralysed (Higen
 lower front moves in while the sides widen with the diaphragm alone, supine (Estenne 1985), since the
 costal arch was set to ×5 (`breathstar patients --arch`: the front crosses zero between ×3 and ×4;
 the seated patient directions hold to ×6). Whether each paradox is worse lying down depends on
-whether the drive or the breath is held. Miss: the belly paradox sitting (none upright, Kreitzer 1978).
+whether the drive or the breath is held. The belly paradox sitting (none upright, Kreitzer 1978) is masked by expiratory abdominals used
+upright (~1.5 cmH2O, assumed; `--expiratory`).
 
 ## Legs (`breathstar legs`)
 
