@@ -1064,3 +1064,18 @@ which is the common lesson case.
 
 **For the model.** The anchoring fraction (`contactAnchoring`) still has no source. Needed: Verhaert
 2011's sector fractions, or another per-region load map, face down and side-lying.
+
+# Literature pass 18: respiratory muscle activity face down (2026-11-11)
+
+- **Motor units involvement in diaphragm and intercostal muscles during supine and prone posture …
+  in healthy young female adults.** *Indian J Physiol Pharmacol* (ijpp.com). Summary only: 30
+  healthy young women, surface EMG; diaphragm and intercostal RMS and %MVC **lower prone than
+  supine** (significant). (The "small study in young women" of pass 10, now identified.)
+- **Prone dogs (anaesthetised)** (J Appl Physiol, PubMed 8365978): parasternal inspiratory EMG and
+  shortening **+30–35%** prone. Animal, anaesthetised: not used.
+- Still no human prone comparison of scalene or parasternal EMG against sitting.
+
+**For the model.** Face down's upper rib muscles are, if anything, less active than supine, so the
+upper ribs' postural loss applies face down too (`uprightUpperDrive` as it stands). The route that
+fixed face down by removing that loss (`breathstar prone`: free lift + no loss → 44%) is
+contradicted; face down needs a mechanical answer (with a free lift and the loss: 59.8%).

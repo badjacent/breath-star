@@ -38,7 +38,9 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   per-segment weight share has been found. If it has to be fitted to face down, face down stops
   being a test.
 - **The upper rib muscles face down.** The postural share (0.4, fitted) treats face down as "not
-  upright"; nothing measures their drive face down.
+  upright". Human surface EMG (30 young women, LITERATURE pass 18) finds intercostal and diaphragm
+  activity lower prone than supine, so the loss applies face down too, and removing it is not the
+  way to fix face down: the answer has to be mechanical.
 - **Unsourced sizes:** the tone factors (held ×5, light ×1.5, softened ×0.7), the belly wall's
   bulge peak with the knees bent, the bend's dome coupling (0.5), the wall's bend gain, the slow-state hypotheses' sizes (respiratory
   thixotropy is real but measured as volume after-effects lasting a few breaths, not stiffness
