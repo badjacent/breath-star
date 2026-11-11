@@ -141,10 +141,13 @@ public enum BodyGenerator {
     /// The seated symmetric body: three fixed-sign muscle groups fitted to Takashima's seated markers,
     /// the fitted lower band and costal arch, recruitment timing, matched to 0.56 L.
     /// `volumes`: also fit OEP compartment shares (Mendes's men seated), the work plan (private), item 2.
+    /// `costalArch`: the costal arch's stiffness (A2Passive.sternalCoupling); nil = the fitted default.
     public static func seatedSymmetric(drive: Drive = Drive(), anatomy: AnatomyModel = AnatomyModel(),
-                                       volumes: VolumeShareTarget? = nil) -> A2Body {
-        A2Body.fitMuscleGroups(anatomy: anatomy, markers: TakashimaMarkers.sitting, tidal: 0.56,
-                               passive: A2MuscleGroup.defaultPassive, lowerBandStiffness: A2MuscleGroup.lowerBandStiffness,
+                                       volumes: VolumeShareTarget? = nil, costalArch: Double? = nil) -> A2Body {
+        var passive = A2MuscleGroup.defaultPassive
+        if let arch = costalArch { passive.sternalCoupling = arch }
+        return A2Body.fitMuscleGroups(anatomy: anatomy, markers: TakashimaMarkers.sitting, tidal: 0.56,
+                               passive: passive, lowerBandStiffness: A2MuscleGroup.lowerBandStiffness,
                                volumes: volumes).body
             .timed(MuscleTiming(), drive: drive).matchedToTidal(0.56, drive: drive)
     }

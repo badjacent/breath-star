@@ -1,6 +1,6 @@
 # Results
 
-The model's defaults as of 2026-11-11, against each source. Quiet breathing is held at 0.56 L, so
+The model's defaults as of 2026-11-11 (costal arch ×5), against each source. Quiet breathing is held at 0.56 L, so
 "drive" is what a configuration needs relative to sitting. Shares are upper ribcage / lower ribcage
 / belly, % of the breath. Sources are in `reference/LITERATURE.md`. Every command named here prints
 the full table.
@@ -12,7 +12,7 @@ Takashima 2017's seated marker motion **and** Mendes 2020's seated compartment v
 
 | | upper | lower | belly | markers within SD |
 |---|---|---|---|---|
-| model | 39.9 | 15.2 | 44.9 | 12/12 |
+| model | 39.8 | 15.2 | 44.9 | 12/12 |
 | Mendes 2020, men seated (OEP, n = 31) | 37.4 ± 8.4 | 21.9 ± 5.8 | 40.8 ± 10.5 | – |
 
 Fitting the markers alone gives 32/12/56 just as well (χ² 1.1 against 1.9 over 12 components): the
@@ -27,12 +27,12 @@ upper rib muscles' postural share), 45° and face down are held out.
 |---|---|---|
 | standing (derived from the hips: lumbar 13.5° more extended than sitting) | 41.3/15.3/43.4; end-expiratory volume as sitting | a little more ribcage than sitting (Verschakelen 1995, Gómez-Recio 2024); FRC as sitting (Attali 2024) |
 | 45°, shares | 34.5/13.3/52.2 | Mendes men 31.0/14.3/55.4; LoMauro 2024 belly 52.0 |
-| supine, shares | 23.0/9.8/67.3 | Mendes men 19.5/11.5/69.8; Kouyama 2016 14/18/66 |
-| side-lying, floor-side lung | 59.3% | 51–62% (Amano, Grant) |
+| supine, shares | 23.3/9.8/67.0 | Mendes men 19.5/11.5/69.8; Kouyama 2016 14/18/66 |
+| side-lying, floor-side lung | 59.2% | 51–62% (Amano, Grant) |
 | side-lying, floor-side chest wall | moves less (234 vs 326 mL) | less (Nozoe 2014) |
 | sitting → supine, end-expiratory volume | −0.84 L | −0.81 L (Lumb & Nunn) |
 | sitting → side, end-expiratory volume | −0.40 L | −0.46 L |
-| face down, belly | 73.6% | **42.5% (LoMauro 2024): a known miss** |
+| face down, belly | 73.5% | **42.5% (LoMauro 2024): a known miss** |
 | supine drive | diaphragm ×1.04, upper rib muscles ×0.62 | parasternals 0.90–0.95 (Wakode), scalenes about halved when inverted, diaphragm unchanged |
 
 ## The spine's shape (`breathstar stage4`)
@@ -44,6 +44,15 @@ upper rib muscles' postural share), 45° and face down are held out.
 | extension 15°: lateral motion at the 9th rib | less | **more (same study): a known miss** |
 | side-bend 20°: wall | the open side moves more (295 vs 265 mL) | no data |
 | side-bend 20°: lungs | the crowded side fills more (284 vs 276 mL) | no data |
+
+## Patients (`breathstar patients`)
+
+One muscle group silenced, sitting and lying. The ribcage moves inward with the rib muscles
+paralysed (Mortola 1978) and the front belly with the diaphragm paralysed (Higenbottam 1977); the
+lower front moves in while the sides widen with the diaphragm alone, supine (Estenne 1985), since the
+costal arch was set to ×5 (`breathstar patients --arch`: the front crosses zero between ×3 and ×4;
+the seated patient directions hold to ×6). Whether each paradox is worse lying down depends on
+whether the drive or the breath is held. Miss: the belly paradox sitting (none upright, Kreitzer 1978).
 
 ## Legs (`breathstar legs`)
 

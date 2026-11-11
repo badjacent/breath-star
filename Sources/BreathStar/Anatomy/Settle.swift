@@ -94,6 +94,9 @@ public struct GravityRules: Sendable {
     /// How firmly the trunk is held against lifting off its supports, 0 (free lift) to 1 (today's
     /// rule: springs relative to the spine). The fraction of weight the girdles carry (design note).
     public var contactAnchoring = 1.0
+    /// The costal arch's stiffness for the seated base; nil = the fitted default
+    /// (`A2MuscleGroup.costalArch`). `breathstar patients --arch` scans it.
+    public var costalArch: Double? = nil
 
     /// The fraction of a bend's rim drop that becomes dome rise relative to the rim (Bending.swift):
     /// 1 = the abdominal contents stay put, 0 = they move with the rim. ASSUMED 0.5.
@@ -373,7 +376,7 @@ extension BodyGenerator {
     /// The seated muscle pressures carry over unchanged (the drive is the configuration's input), so
     /// tidal volume is predicted, not matched.
     public static func general(_ c: BodyConfiguration, rules: GravityRules = GravityRules(), drive: Drive = Drive()) -> RuleBody {
-        let seated = seatedSymmetric(drive: drive, volumes: rules.seatedVolumes)
+        let seated = seatedSymmetric(drive: drive, volumes: rules.seatedVolumes, costalArch: rules.costalArch)
         let sym = SidedBody.calibrate(anatomy: AnatomyModel(), reference: SidedCoordinate.fromSymmetric(seated.reference),
                                       passive: seated.passive).matchedToTidal(0.56, drive: drive)
         let up = (x: 0.0, y: 0.0, z: -1.0)

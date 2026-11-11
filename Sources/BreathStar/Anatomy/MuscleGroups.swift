@@ -167,10 +167,15 @@ extension A2MuscleGroup {
     /// once (`breathstar arch-scan`): Takashima's seated markers pick the lower band ×2.5 at every arch
     /// strength; the seated patient directions hold 7/7 for an arch of ×5 or weaker and 5/7 at ×10 or
     /// stiffer; Kouyama 2016's presses improve steadily as the arch weakens (χ² 1230 at ×10, 1007 at ×3,
-    /// 707 at ×1), while the marker fit worsens slightly (1.04 → 1.12 → 1.34). ×3 balances them. FITTED,
-    /// not sourced. (Until then: lower ×2, arch ×10 assumed.)
+    /// 707 at ×1), while the marker fit worsens slightly (1.04 → 1.12 → 1.34). ×3 balanced them.
+    /// 2026-11-11, a fourth criterion: Estenne 1985 (diaphragm alone, supine: the lower front moves in)
+    /// holds from ×4 (`breathstar patients --arch --fine`: +0.03 mm at ×3, −0.05 at ×4, −0.10 at ×5,
+    /// −0.14 at ×6) and the patient directions stay 7/7 to ×6 (5/7 at ×8); Kouyama's χ² rises 11%
+    /// (1007 → 1123), but its lower press has the wrong sign at any arch (+0.74 vs −0.14 L), so it
+    /// weighs little. Now ×5, the middle of the window. FITTED, not sourced; Estenne is therefore
+    /// met by this choice, not predicted. (Until 2026-11-10: lower ×2, arch ×10 assumed.)
     public static let lowerBandStiffness = 2.5
-    public static let costalArch = 3.0
+    public static let costalArch = 5.0
 
     /// The default passive properties for a muscle-group body: A2Passive with the fitted costal arch.
     public static var defaultPassive: A2Passive {

@@ -45,12 +45,13 @@ import Testing
         }
     }
 
-    /// Estenne 1985: the diaphragm alone, supine, moves the lower ribcage's front inward. The model's
-    /// front barely moves (+0.02 to +0.03 mm).
+    /// Estenne 1985: the diaphragm alone, supine, moves the lower ribcage's front inward while the
+    /// sides widen. Met since 2026-11-11 by the costal arch's stiffness (×5, chosen inside the window
+    /// where the seated patient directions hold, `A2MuscleGroup.costalArch`): a fit, not a
+    /// prediction. Small: −0.10 mm (+0.03 at the earlier ×3).
     @Test func lowerFrontWithTheDiaphragmAlone() {
-        let p = Self.breath(.supine, silence: [.ribs], matched: false)
-        #expect(abs(p.lowerFront) < 0.1)
-        withKnownIssue("Estenne 1985: the lower ribcage's front should move inward, supine, diaphragm alone") {
+        for matched in [false, true] {
+            let p = Self.breath(.supine, silence: [.ribs], matched: matched)
             #expect(p.lowerFront < 0)
         }
     }

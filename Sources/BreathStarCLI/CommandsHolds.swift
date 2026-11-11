@@ -213,7 +213,7 @@ func runArchScan(_ args: ArraySlice<String>) {
     print("Costal-arch coupling scan (ribcage basis; the lower band's stiffness re-picked by the seated markers each time).\n")
     print("  " + pad("arch ×", 8) + pad("lower ×", 9) + pad("seat χ²", 9) + pad("checks", 8) + pad("seated u/l/a", 15)
           + pad("supine in SD", 14) + pad("supine u/l/a", 15) + pad("Kouyama χ²", 12) + "lower press ΔVrcp")
-    for arch in [0.5, 1, 2, 3, 5, 10, 20] {
+    for arch in (CommandLine.arguments.contains("--fine") ? [3.0, 4, 5, 6, 8] : [0.5, 1, 2, 3, 5, 10, 20]) {
         var passive = A2Passive()
         passive.sternalCoupling = arch
         let best = [1.0, 1.5, 2, 2.5, 3, 4].map {
