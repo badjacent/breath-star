@@ -1030,3 +1030,21 @@ labelled hypothesis, off by default.
   on inspiration, more with larger breaths, **best seen recumbent**. **Kreitzer et al. (1978)** (case
   report, summary): inward abdominal motion supine, none at the bedside upright. Used:
   `PatientTests.bellyParadoxLyingDown` (front-wall AP motion).
+
+# Literature pass 16: arm position (2026-11-11)
+
+- **Kruapanich C, et al. (2021–22).** The effect of unsupported arm elevations on regional chest
+  wall volumes and thoracoabdominal asynchrony in patients with COPD. *Physiother Theory Pract*
+  38(11). doi:10.1080/09593985.2021.1882018. Abstract via summaries: 21 COPD and matched healthy
+  subjects, OEP. In both groups the upper ribcage's tidal volume (VRCp) and asynchrony changed with
+  unsupported arm elevation against rest. Healthy: VRCp lower in scaption (0.14 ± 0.07 L) and
+  abduction (0.15 ± 0.06) than in flexion (0.18 ± 0.07). **The resting value was not reachable**
+  (full text closed).
+- **Arm positioning alters lung volumes in subjects with COPD and healthy subjects** (ResearchGate
+  10736034; body plethysmography, via a summary): arm elevation lowers vital capacity ~180 mL and
+  FRC ~120 mL.
+
+**For the model.** Arms are not built: the direction is sourced (holding the arms up takes motion
+from the upper ribcage, more sideways than forward, and lowers FRC slightly), the size is not.
+Needed: Kruapanich's resting VRCp (full text), or a supported-arm (lying, arm overhead) dataset,
+which is the common lesson case.

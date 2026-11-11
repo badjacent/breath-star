@@ -43,8 +43,9 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   over minutes: LITERATURE pass 15), and every angle in a lesson encoding.
 - **Standing** is derived from the hips (`BodyConfiguration.standing`) without the tonic
   abdominal activity standing is known for (Druz & Sharp 1981), which nothing sizes.
-- **Not modelled:** the pelvic floor, a posterior abdominal wall, the
-  head, neck and arms, pelvic rocking.
+- **Arms:** the direction is sourced (unsupported arm elevation takes motion from the upper
+  ribcage, more sideways than forward; LITERATURE pass 16), the size is not; not built.
+- **Not modelled:** the pelvic floor, a posterior abdominal wall, the head and neck, pelvic rocking.
 
 ## Next
 
