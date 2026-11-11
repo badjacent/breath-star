@@ -1097,3 +1097,9 @@ contradicted; face down needs a mechanical answer (with a free lift and the loss
 and releasing it on the in-breath mask the front belly's paradox from ~1.4 cmH2O (`breathstar
 patients --expiratory`); used upright and not lying down, they give Kreitzer 1978 (no paradox
 upright) and Higenbottam 1977 (paradox lying down). Size assumed. `SidedBody.expiratoryAbdominalPressure`.
+
+- **Intermediate angles (2026-11-11, for the 45° path):** Romei 2010 (*Respir Physiol Neurobiol*
+  172:184–191) reports a **progressive** rise in the abdominal contribution and fall in ribcage
+  displacement as the trunk inclines from seated to supine (abstract); its per-posture shares are in
+  the paywalled full text (ScienceDirect S156990481000193X). No study found with several angles
+  between 0° and 90°. The linear-vs-squared postural factor (`uprightSquared`) stays undecided.
