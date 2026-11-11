@@ -104,9 +104,10 @@ let viewerHTML = #"""
     <label><input type="checkbox" id="binside"> diaphragm</label>
     <label><input type="checkbox" id="bsil"> silhouette</label>
     <label><input type="checkbox" id="bspine" checked> spine</label>
-    <label>Shape <select id="bshape"><option value="body">body outline</option><option value="oval" selected>felt container (oval)</option></select></label>
+    <label>Shape <select id="bshape"><option value="body">body outline</option><option value="oval" selected>felt container (oval)</option><option value="radial">radial (from the low belly)</option></select></label>
+    <label class="radialc">centre height <input type="range" id="bcentre" min="0" max="16" step="1" value="10"></label>
     <label class="ovalc">room by breath <input type="range" id="broom" min="0" max="1" step="0.05" value="1"></label>
-    <label class="ovalc">wider low <input type="range" id="begg" min="0" max="0.5" step="0.05" value="0"></label>
+    <label class="ovalc eggc">wider low <input type="range" id="begg" min="0" max="0.5" step="0.05" value="0"></label>
     <label class="ovalc">height/width <input type="range" id="baspect" min="0.9" max="1.8" step="0.05" value="1"></label>
     <label title="a wide blur of the whole light, mixed in: it softens the light and lets it spill past the edge (Breath Star's wash)">glow width <input type="range" id="bglow" min="0" max="14" step="0.5" value="9"> <span id="bglowv">9.0 cm</span></label>
     <label>glow mix <input type="range" id="bgmix" min="0" max="1" step="0.05" value="0.6"></label>
@@ -125,7 +126,7 @@ let viewerHTML = #"""
      <b>Felt container:</b> the trunk surface mapped smoothly onto an oval, nothing cropped; the iliac crests and the top
      of the ribcage become its poles (the pelvic bowl and the lung apices are not modelled, so the poles are carried by
      their neighbours). "Room by breath" gives each height space by how much it moves in the reference breath; light is
-     scaled by the map's stretch, so brightness still means motion per area. Lying on the side, the oval shows the light
+     scaled by the map's stretch, so brightness still means motion per area. <b>Radial</b> (an alternative to compare): the breath as expansion from a centre low in the belly (centre height in cm above the iliac crests), the pelvis and the top of the ribcage as the poles; each height row becomes an arc whose ring area follows its room, across the row becomes the angle round it. Below about 6 cm the trunk barely moves, so a low centre leaves the lower half dark. Lying on the side, the oval shows the light
      without the posture's arc or the floor.</p>
 
   <p class="note">Playback: 1× is half the breath's real pace (one breath every 7.5 s); "real time" plays it as modelled (16 breaths a minute). The felt container's defaults are the Breath Star look the user chose on 2026-11-10 (round, room fully by breath, a 9 cm glow at 0.6, no outline); "earlier settings" restores the oval chosen before (height/width 1.25, wider low 0.1, outline, no glow). Space plays or pauses; ← → step one frame. Alternative model variants (seated reference only): 12 variants with the
@@ -435,9 +436,10 @@ const BG = [13, 15, 20];
 // packed, not dimmed.
 const shapeCache = {};
 function shapeOf() {
-  if ($("bshape").value !== "oval") return null;
+  const kind = $("bshape").value;
+  if (kind !== "oval" && kind !== "radial") return null;
   const surf = posture.surface, top = posture.landmarks["top of ribcage"];
-  const key = posture.id + "|" + $("broom").value + "|" + $("begg").value + "|" + $("baspect").value;
+  const key = posture.id + "|" + kind + "|" + $("broom").value + "|" + $("begg").value + "|" + $("baspect").value + "|" + $("bcentre").value;
   if (shapeCache[key]) return shapeCache[key];
   // Rest half-width per height row (the widest projected point), and the reference breath's motion per row.
   const rows = new Map();
@@ -472,7 +474,31 @@ function shapeOf() {
     const [, z0] = map(0, z - 0.5), [, z1] = map(0, z + 0.5), [xw] = map(1, z);
     return Math.max(0.05, (z1 - z0) * xw);
   }
-  return (shapeCache[key] = { map, areaScale });
+  if (kind === "oval") return (shapeCache[key] = { map, areaScale });
+  // Radial (docs/LESSON_ADAPTATION.md §7.1, "an alternative layout to test against the oval"): the breath
+  // as expansion from a centre low in the belly, the pelvis and the top of the ribcage as the poles.
+  // A row's distance from the centre is how far along the trunk it lies (the same room-by-breath
+  // spacing g as the oval), above the centre into the upper half-disc, below into the lower; across
+  // the row (x over its rest half-width) becomes the angle round the arc; the radius goes with the square
+// root of the spacing, so each row's ring area (not its radius) follows its room. Light is scaled by the map's
+  // local area change (numerical Jacobian), so brightness still means motion per body area.
+  const R = Hd / 2, zc0 = 1 + R;
+  const gOf = z => { const zc = Math.max(0, Math.min(top, z)), h = zc / top; return (1 - w) * h + w * interp(cum, zc); };
+  const g0 = gOf(+$("bcentre").value);
+  function rmap(x, z) {
+    const zc = Math.max(0, Math.min(top, z)), g = gOf(zc), up = g >= g0;
+    // Area, not radius, follows the spacing: a ring's area goes with r·dr, so r = R·√(share) gives each
+    // row display area in proportion to its room (with "room by breath", its share of the breath).
+    const r = R * Math.sqrt(Math.max(0, up ? (g - g0) / Math.max(1e-6, 1 - g0) : (g0 - g) / Math.max(1e-6, g0)));
+    const u = Math.max(-1, Math.min(1, x / Math.max(1, interp(hw, zc))));
+    const th = u * Math.PI / 2;
+    return [r * Math.sin(th) / aspect, zc0 + (up ? 1 : -1) * r * Math.cos(th)];
+  }
+  function rArea(x, z) {
+    const e = 0.5, [ax, az] = rmap(x - e, z), [bx, bz] = rmap(x + e, z), [cx, cz] = rmap(x, z - e), [dx, dz] = rmap(x, z + e);
+    return Math.max(0.05, Math.abs((bx - ax) * (dz - cz) - (bz - az) * (dx - cx)) / (4 * e * e));
+  }
+  return (shapeCache[key] = { map: rmap, areaScale: rArea });
 }
 function toDisplay(x, z) {
   const sh = shapeOf();
@@ -564,7 +590,7 @@ function glow() {
 // its diaphragm peak, and the exposure that maps its brightest frame's brightest cell to 0.85.
 function refScale(width, chan, gamma, mag) {
   const key = [posture.id, width, chan, gamma, $("bback").checked, $("binside").checked,
-               $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bglow").value, $("bgmix").value].join("|");
+               $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bcentre").value, $("bglow").value, $("bgmix").value].join("|");
   if (refCache[key]) return refCache[key];
   const keep = kase; kase = posture.cases.find(c => c.id === "reference");
   const B = posture.surface.bases[width];
@@ -633,10 +659,12 @@ for (const id of ["bchan", "bw", "bback", "binside", "bsil", "bspine", "bunc"]) 
 // Shape changes move the light, so the exposure is recomputed; the oval's sliders only show with it.
 function shapeChanged() {
   for (const k in refCache) delete refCache[k];
-  for (const e of document.querySelectorAll(".ovalc")) e.style.display = $("bshape").value === "oval" ? "" : "none";
+  for (const e of document.querySelectorAll(".ovalc")) e.style.display = $("bshape").value !== "body" ? "" : "none";
+  for (const e of document.querySelectorAll(".radialc")) e.style.display = $("bshape").value === "radial" ? "" : "none";
+  for (const e of document.querySelectorAll(".eggc")) e.style.display = $("bshape").value === "oval" ? "" : "none";
   render();
 }
-for (const id of ["bshape", "broom", "begg", "baspect"]) $(id).addEventListener("input", shapeChanged);
+for (const id of ["bshape", "broom", "begg", "baspect", "bcentre"]) $(id).addEventListener("input", shapeChanged);
 function glowChanged() {
   $("bglowv").textContent = +$("bglow").value > 0 ? (+$("bglow").value).toFixed(1) + " cm" : "off";
   for (const k in refCache) delete refCache[k];
@@ -651,7 +679,9 @@ function preset(v) {
 $("bstar").onclick = () => preset({ bshape: "oval", baspect: 1, begg: 0, bglow: 9, bgmix: 0.6, bsil: false });
 $("bmine").onclick = () => preset({ bshape: "oval", broom: 1, baspect: 1.25, begg: 0.1, bglow: 0, bgmix: 0.6, bsil: true });
 $("bshape").onchange = shapeChanged;
-for (const e of document.querySelectorAll(".ovalc")) e.style.display = $("bshape").value === "oval" ? "" : "none";
+for (const e of document.querySelectorAll(".ovalc")) e.style.display = $("bshape").value !== "body" ? "" : "none";
+  for (const e of document.querySelectorAll(".radialc")) e.style.display = $("bshape").value === "radial" ? "" : "none";
+  for (const e of document.querySelectorAll(".eggc")) e.style.display = $("bshape").value === "oval" ? "" : "none";
 
 fillCases(); scaffold(); render();
 requestAnimationFrame(tick);
