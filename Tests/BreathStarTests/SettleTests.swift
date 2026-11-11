@@ -107,4 +107,15 @@ import Testing
     /// 1994 (Spacelab SLS-1, n = 4; checked 2026-11-11): FRC ~15% (~0.5 L) below standing in
     /// microgravity, 32% below standing supine.
     @Test func supineFRC() { #expect(abs(Self.supine.frcChange + 0.81) < 0.1) }
+
+    /// Standing, derived from the hips (`BodyConfiguration.standing`, nothing fitted): a little more
+    /// ribcage than sitting (Verschakelen 1995, Gómez-Recio 2024) and the same end-expiratory volume
+    /// (Attali 2024).
+    @Test func standingFromTheHips() {
+        let sit = BodyGenerator.general(.seated), stand = BodyGenerator.general(.standing)
+        let a = Self.breath(sit), b = Self.breath(stand)
+        #expect(b.upperShare + b.lowerShare > a.upperShare + a.lowerShare)
+        #expect(b.upperShare + b.lowerShare < a.upperShare + a.lowerShare + 0.05)
+        #expect(abs(stand.frcChange - sit.frcChange) < 0.01)
+    }
 }

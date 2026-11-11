@@ -82,6 +82,19 @@ public struct BodyConfiguration: Sendable {
 
     /// Sitting upright (gravity toward the feet). Takashima's seated subjects; a backrest bears no load.
     public static let seated = BodyConfiguration(name: "seated", gravity: (0, 0, -1))
+    /// Standing: sitting's gravity, with the hips straight. Derived, nothing fitted: the seated data's
+    /// subjects sat with the hips at ~90°; `Legs`' rule (lumbar flexion 0.15° per degree of hip
+    /// flexion, checked against supine MRI) then gives standing a lumbar curve 13.5° more extended
+    /// than sitting (Claus et al. 2015: relaxed sitting flexes the lumbar spine ~24° from standing).
+    /// The membrane rule then lengthens and stiffens the belly wall. Not included (unsized): the
+    /// tonic oblique activity of standing (Druz & Sharp 1981). Checks: the ribcage share at least the
+    /// seated one (Verschakelen 1995, Gómez-Recio 2024); end-expiratory volume about the same
+    /// (Attali 2024).
+    public static let standing: BodyConfiguration = {
+        var c = BodyConfiguration(name: "standing", gravity: (0, 0, -1))
+        c.spine.lumbarFlexion = -Legs.lumbarFlexionPerHipDegree * 90
+        return c
+    }()
     /// Lying on the back on the floor (gravity toward the back).
     public static let supine = BodyConfiguration(name: "supine", gravity: (0, -1, 0), contacts: [ContactPatch(.back)])
     /// Lying on the right side on the floor (gravity toward the right, −x).
@@ -249,7 +262,10 @@ public struct Legs: Sendable, Equatable {
     public static let long = Legs(left: 0, right: 0, feetStanding: false)
     public static let kneesBent = Legs(left: 60, right: 60)
 
-    public var lumbarFlexion: Double { min(15, 0.15 * 0.5 * (hipFlexion[0] + hipFlexion[1])) }
+    /// Lumbar flexion per degree of hip flexion (the pelvis rolling back), degrees. ASSUMED slope,
+    /// checked at a cushion's hip angle against supine MRI (3–6°).
+    public static let lumbarFlexionPerHipDegree = 0.15
+    public var lumbarFlexion: Double { min(15, Self.lumbarFlexionPerHipDegree * 0.5 * (hipFlexion[0] + hipFlexion[1])) }
     /// + toward the left (the left side short) when the left hip is more flexed.
     public var lumbarSideBend: Double { max(-6, min(6, 0.1 * (hipFlexion[0] - hipFlexion[1]))) }
     public var bulgePeak: Double { 0.5 - 0.15 * lumbarFlexion / 15 }

@@ -242,6 +242,7 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
         if let bend = bendData(a, c.spine) { entry["bend"] = bend }
         postures.append(entry)
     }
+    rulePosture("standing", "Standing (derived from the hips; tonic abdominals not included)", .standing)
     rulePosture("side-bend", "Seated, side-bend 20° to the left (stage 4)", BodyConfiguration.seated.with(SpineShape(sideBend: 20)))
     rulePosture("reclined", "Reclined 45° (backrest)", .reclined45)
     rulePosture("supine", "Lying on the back", .supine)

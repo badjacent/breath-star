@@ -12,7 +12,7 @@ import Foundation
 //   "before": "scan", "after": "final-rest",          // the steps a before/after compares
 //   "steps": [{
 //     "id": "…", "label": "…", "source": "…",
-//     "posture": "seated" | "supine" | "rightSideDown" | "leftSideDown" | "reclined45" | "prone",
+//     "posture": "seated" | "standing" | "supine" | "rightSideDown" | "leftSideDown" | "reclined45" | "prone",
 //     "legs": {"left": 0, "right": 60, "feetStanding": true},          // hip flexion, degrees
 //     "spine": {"flexion": 25, "sideBend": 0, "rotation": 0,           // split lumbar/thoracic
 //               "lumbarFlexion": 0, "thoracicFlexion": 12, …},         // added to the legs' shape
@@ -104,7 +104,7 @@ extension Lesson {
 
     static func step(_ s: Step) throws -> LessonStep {
         let postures: [String: BodyConfiguration] = [
-            "seated": .seated, "supine": .supine, "rightSideDown": .rightSideDown, "leftSideDown": .leftSideDown,
+            "seated": .seated, "standing": .standing, "supine": .supine, "rightSideDown": .rightSideDown, "leftSideDown": .leftSideDown,
             "reclined45": .reclined45, "prone": .prone,
         ]
         guard var c = postures[s.posture] else { throw LessonFileError.unknown(field: "posture", value: s.posture, step: s.id) }

@@ -35,7 +35,9 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   bulge peak with the knees bent, the bend's dome coupling (0.5), the wall's bend gain, the slow-state hypotheses' sizes (respiratory
   thixotropy is real but measured as volume after-effects lasting a few breaths, not stiffness
   over minutes: LITERATURE pass 15), and every angle in a lesson encoding.
-- **Not modelled:** standing (taken as sitting), the pelvic floor, a posterior abdominal wall, the
+- **Standing** is derived from the hips (`BodyConfiguration.standing`) without the tonic
+  abdominal activity standing is known for (Druz & Sharp 1981), which nothing sizes.
+- **Not modelled:** the pelvic floor, a posterior abdominal wall, the
   head, neck and arms, pelvic rocking.
 
 ## Next

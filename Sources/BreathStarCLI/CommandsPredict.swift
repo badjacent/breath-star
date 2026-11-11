@@ -12,6 +12,7 @@ func runMeasurePredictions(_ args: ArraySlice<String>) {
     let s = BodyConfiguration.seated
     let rows: [(String, String, BodyConfiguration)] = [
         ("A", "sitting upright", s),
+        ("S", "standing", .standing),
         ("B", "sitting slumped", s.with(.slumped)),
         ("C", "sitting, lower back arched 15°", s.with(arch)),
         ("C2", "sitting, mid-back arched 15°", s.with(midArch)),

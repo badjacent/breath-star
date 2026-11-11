@@ -25,6 +25,7 @@ upper rib muscles' postural share), 45° and face down are held out.
 
 | | model | data |
 |---|---|---|
+| standing (derived from the hips: lumbar 13.5° more extended than sitting) | 41.3/15.3/43.4; end-expiratory volume as sitting | a little more ribcage than sitting (Verschakelen 1995, Gómez-Recio 2024); FRC as sitting (Attali 2024) |
 | 45°, shares | 34.5/13.3/52.2 | Mendes men 31.0/14.3/55.4; LoMauro 2024 belly 52.0 |
 | supine, shares | 23.0/9.8/67.3 | Mendes men 19.5/11.5/69.8; Kouyama 2016 14/18/66 |
 | side-lying, floor-side lung | 59.3% | 51–62% (Amano, Grant) |

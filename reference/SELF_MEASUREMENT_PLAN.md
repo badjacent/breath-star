@@ -15,6 +15,7 @@ Nothing here needs building before you decide to do it; the cheapest tier needs 
 |---|---|---|---|
 | Side-bend: which side's wall moves (ribs as struts) | D vs E, lateral lower ribs left vs right | crowded side **less** (0.63 vs 1.03 mm at the lowest ribs) | the crowded side moving as much or more |
 | Knees bent (the belly wall as a membrane; `Legs`, 2026-11-11) | H vs G (knees bent, feet standing vs legs long); a marker or band low and high on the belly | knees bent: belly share **up** (67 → 69%); the **low** belly moves more (3.96 → 5.02 mm), the high belly about the same (4.99 → 4.82); lowest ribs down | the low belly moving less with the knees bent, or the change only high up |
+| Standing (derived from the hips, 2026-11-11) | S vs A | standing: ribcage share a little **up** (55 → 57%), belly forward motion down (3.0 → 2.6 mm) | ribcage share down standing |
 | Slumped sitting | B vs A | ribcage share **down** (55 → 44%), belly forward motion up | ribcage share unchanged or up |
 | Extension (the known issue) | C and C2 vs A, lowest ribs | lower back arched: lateral lowest ribs about unchanged (0.82 → 0.79 mm), lower ribcage slightly up (0.92 → 0.94); mid-back arched: **down** (→ 0.57) | the mid-back arch moving them more than the lower-back arch |
 | Rotation | F vs A | ribcage share down (55 → 45%), lowest ribs out more | ribcage share up |
@@ -149,6 +150,7 @@ front belly (umbilicus region, forward), front upper chest (forward).
 
      position                        rc/ab %    lat. lowest L/R  lat. lower L/R  belly fwd  chest fwd  lungs L/R mL
   A  sitting upright                 55/45      0.82/0.82        0.92/0.92       3.04       2.75       280/280
+  S  standing                        57/43      0.79/0.79        0.94/0.94       2.56       2.88       280/280
   B  sitting slumped                 44/56      0.91/0.91        0.85/0.85       5.39       2.17       280/280
   C  sitting, lower back arched 15°  57/43      0.79/0.79        0.94/0.94       2.53       2.89       280/280
   C2 sitting, mid-back arched 15°    61/39      0.57/0.57        0.82/0.82       2.57       2.99       280/280
