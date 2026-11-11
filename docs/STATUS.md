@@ -4,7 +4,7 @@ As of 2026-11-11. All seven stages of the lesson plan (`docs/LESSON_ADAPTATION.m
 configuration → body, the gravity rules, the spine's shape, lessons as data, slow-state hypotheses,
 and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
 
-## Known issues (the 10 `withKnownIssue` checks)
+## Known issues (the 11 `withKnownIssue` checks)
 
 - **Face down** (`proneRibcageShare`, two checks): the belly takes 74% of the breath; LoMauro 2024
   measured 42.5%. The floor holds the chest back more than the belly, and the breath escapes through
@@ -16,8 +16,10 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   ribs ease; the belly wall and flanks stiffen. A lower-back arch alone moves the lower ribcage more,
   a mid-back arch both levels less (contrasts C and C2 of the self-measurement plan).
 - **Patient patterns lying down.** On the current bodies (`breathstar patients`, `PatientTests`):
-  Mortola 1978's ribcage paradox, worse supine, holds; Higenbottam 1977's belly paradox is larger
-  supine as a fraction of the breath but not in millilitres; Estenne 1985's inward lower front
+  Mortola 1978's ribcage paradox, worse supine, holds; Higenbottam 1977's belly paradox (front wall,
+  magnetometers) should be best seen lying down and absent upright (Kreitzer 1978), but the model's is
+  larger sitting (−1.59 vs −1.37 mm): what masks it upright (the contents' weight, expiratory
+  abdominal activity) is not modelled; Estenne 1985's inward lower front
   (diaphragm alone, supine) is about zero (+0.02 mm). On the earlier fitted supine body
   (`patientPatternsLyingDownKnownIssues`, `abdominalParadoxLyingDownKnownIssue`) the patterns were
   lost when volumes became OEP-style surface volumes.

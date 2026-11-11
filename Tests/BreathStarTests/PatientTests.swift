@@ -24,16 +24,22 @@ import Testing
         #expect(Self.ribcage(p) < Self.ribcage(s))
     }
 
-    /// Higenbottam 1977: with the diaphragm paralysed the belly moves inward, clearest lying down.
-    /// As a fraction of the (smaller) supine breath it is (−51% → −79%); in millilitres it is not
-    /// (−122 → −108). Which the paper meant is not in the notes: both are recorded.
+    /// Higenbottam 1977 (Thorax 32:589; magnetometers on the front belly wall): with the diaphragm
+    /// paralysed the front belly moves inward on inspiration, best seen lying down; upright there may
+    /// be none (Kreitzer 1978). The model's front belly moves inward 1.59 mm seated and 1.37 supine:
+    /// paradox in both, larger seated. What masks it upright (the contents' weight, expiratory
+    /// abdominal activity that recoils outward at inspiration) is not in the model.
     @Test func bellyParadoxLyingDown() {
-        let s = Self.breath(.seated, silence: [.diaphragm]).m, p = Self.breath(.supine, silence: [.diaphragm]).m
-        #expect(Self.belly(s) < 0 && Self.belly(p) < 0)
-        #expect(Self.belly(p) / p.tidalVolume < Self.belly(s) / s.tidalVolume)
-        withKnownIssue("Higenbottam 1977 in millilitres: the belly's inward motion should be larger supine") {
-            #expect(Self.belly(p) < Self.belly(s))
+        func front(_ c: BodyConfiguration) -> Double {
+            let b = BodyGenerator.general(c, drive: Self.drive).body.silenced([.diaphragm])
+            let sim = b.simulate(drive: Self.drive).suffix(Int(Self.drive.period / 0.002))
+            let hi = sim.max { $0.totalLung < $1.totalLung }!.q, lo = sim.min { $0.totalLung < $1.totalLung }!.q
+            return b.anatomy.sectorMotion(z: 4...14, psi: -20...20, side: .left, b.anatomy.sidedState(zip(hi, lo).map { $0 - $1 })).y
         }
+        let s = front(.seated), p = front(.supine)
+        #expect(p < 0)
+        withKnownIssue("Higenbottam 1977: the front belly's inward motion should be larger lying down") { #expect(p < s) }
+        withKnownIssue("Kreitzer 1978: upright, little or no paradox") { #expect(s > -0.5) }
     }
 
     /// Estenne 1985: the diaphragm alone, supine, moves the lower ribcage's front inward. The model's

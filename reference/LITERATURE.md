@@ -1023,3 +1023,10 @@ labelled hypothesis, off by default.
   plethysmography during abdominal bracing, drawing-in or hollowing, and with an abdominal binder,
   in healthy adults; none found (two extended searches). Abdominal-muscle elastography at rest and
   contracted was not found in reach either (pass 14). The factors stay assumed.
+
+- **Higenbottam T, et al. (1977).** Abdominal wall movement in normals and patients with
+  hemidiaphragmatic and bilateral diaphragmatic palsy. *Thorax* 32:589–595. doi:10.1136/thx.32.5.589.
+  Abstract via a summary: magnetometers; with bilateral palsy the front abdominal wall moves inward
+  on inspiration, more with larger breaths, **best seen recumbent**. **Kreitzer et al. (1978)** (case
+  report, summary): inward abdominal motion supine, none at the bedside upright. Used:
+  `PatientTests.bellyParadoxLyingDown` (front-wall AP motion).
