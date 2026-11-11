@@ -121,7 +121,7 @@ func runKouyama(_ args: ArraySlice<String>) {
             var lo = 0.0, hi = 400.0
             for _ in 0..<40 { let mid = 0.5 * (lo + hi); if run(with(mid)).pabEndExp - q0.pabEndExp < 15.55 - 2.99 { lo = mid } else { hi = mid } }
             let p = 0.5 * (lo + hi), r = run(with(p))
-            print("  " + pad("×\(f(scale * 10, 1)) (of 10) / \(pressLabel)", 40) + fmtV(r.v) + f(p, 0))
+            print("  " + pad("arch ×\(f(scale * 10, 1)) / \(pressLabel)", 40) + fmtV(r.v) + f(p, 0))
         }
     }
     print("  measured                                " + fmtV([1.40, -0.14, 0.90, 0.64]))

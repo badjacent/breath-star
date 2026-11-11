@@ -48,6 +48,11 @@ and the viewer playing a lesson. Numbers are in `docs/RESULTS.md`.
   abdominal activity standing is known for (Druz & Sharp 1981), which nothing sizes.
 - **Arms:** the direction is sourced (unsupported arm elevation takes motion from the upper
   ribcage, more sideways than forward; LITERATURE pass 16), the size is not; not built.
+- **Kouyama 2016's lower chest press** (`breathstar kouyama`): the upper ribcage should expand while
+  breathing out (−0.14 L). Pressing the sides only gives that sign at any arch strength; pressing the
+  whole lower band, front included, needs a very weak arch. Kouyama's hands went from the front to
+  the sides, and how the pressure was spread under them isn't reported. Sizes are ~2× too large (the
+  nonlinearity below resting volume).
 - **Not modelled:** the pelvic floor, a posterior abdominal wall, the head and neck, pelvic rocking.
 
 ## Next
