@@ -114,6 +114,7 @@ let viewerHTML = #"""
     <button id="bstar" title="round container, no egg, glow 9 cm at 0.6, no outline">Breath Star look</button>
     <button id="bmine" title="the earlier settings: oval 1.25, wider low 0.1, no glow, outline on">earlier settings</button>
     <label><input type="checkbox" id="bunc"> soften where unsure</label>
+    <label title="a made-up pattern, not the model: a band of motion that travels round the trunk once per breath, to see how each shape shows travel (blur only; the line view keeps the case)">Test wave <select id="bwave"><option value="off">off (the model)</option><option value="up">up the trunk</option><option value="updown">up, then back down</option><option value="side">side to side</option></select></label>
   </div>
   <div class="stage" style="background:#0d0f14"><canvas id="blur" width="840" height="920" style="display:block;width:100%;max-width:420px;margin:0 auto"></canvas></div>
   <p class="note">Blue-white: outward. Violet: inward. With "fullness" that means the wall is inward of where it rests at
@@ -122,7 +123,8 @@ let viewerHTML = #"""
      map, all fixed by the posture's reference breath: brighter means more motion, and a weaker case looks weaker, but
      brightness ratios are not motion ratios. "Soften where unsure" widens the light where 12 variants of the model,
      with its assumed numbers and the marker means redrawn, disagree (seated only); the variants leave out the
-     structural choices, so this understates the uncertainty. Trunk only: the model has no head or limbs.
+     structural choices, so this understates the uncertainty. "Test wave" replaces the model's light with a made-up
+     band that travels round the trunk once per breath, to compare how the shapes show travel; it is not a prediction. Trunk only: the model has no head or limbs.
      <b>Felt container:</b> the trunk surface mapped smoothly onto an oval, nothing cropped; the iliac crests and the top
      of the ribcage become its poles (the pelvic bowl and the lung apices are not modelled, so the poles are carried by
      their neighbours). "Room by breath" gives each height space by how much it moves in the reference breath; light is
@@ -525,6 +527,20 @@ function blurValues(surf, B, q) {
   for (let c = 0; c < q.length; c++) { const qc = q[c]; if (!qc) continue; const b = B[c]; for (let j = 0; j < n; j++) v[j] += qc * b[j]; }
   return v;
 }
+// The test wave: a made-up band of outward motion (Gaussian, 4 cm wide) that travels once per breath,
+// up the trunk from the pelvis to the top of the ribcage, up and back, or across from one side to the
+// other. Its peak is the reference breath's largest motion, so it is lit on the same scale.
+// It is not the model: it shows how each shape draws a travelling pattern.
+let inRef = false;
+function waveValues(surf, f, peak) {
+  const kind = $("bwave").value, ph = f / kase.q.length, top = posture.landmarks["top of ribcage"];
+  const n = surf.x.length, v = new Float64Array(n), s = 4;
+  let along, c;
+  if (kind === "side") { along = j => surf.x[j]; c = -16 + 32 * ph; }
+  else { along = j => surf.z[j]; c = kind === "updown" ? top * (1 - Math.abs(2 * ph - 1)) : top * ph; }
+  for (let j = 0; j < n; j++) { const d = along(j) - c; v[j] = peak * Math.exp(-d * d / (2 * s * s)); }
+  return v;
+}
 function qAt(f) { return frameQ(((f % kase.q.length) + kase.q.length) % kase.q.length).q; }
 function channel(surf, B, f, chan) {
   if (chan === "d") return blurValues(surf, B, qAt(f));
@@ -536,7 +552,8 @@ function channel(surf, B, f, chan) {
 // Accumulate one frame's light; returns the brightest cell's total.
 function accumulate(f, mag, width, chan, gamma, ref) {
   for (const a of acc) a.fill(0);
-  const surf = posture.surface, vals = channel(surf, surf.bases[width], f, chan);
+  const surf = posture.surface, wave = !inRef && $("bwave").value !== "off";
+  const vals = wave ? waveValues(surf, f, ref.m) : channel(surf, surf.bases[width], f, chan);
   const unc = $("bunc").checked && surf.uncertainty;
   const n = surf.x.length;
   const one = (j, back) => {
@@ -550,7 +567,7 @@ function accumulate(f, mag, width, chan, gamma, ref) {
   };
   if ($("bback").checked) for (let j = 0; j < n; j++) if (surf.back[j]) one(j, true);
   for (let j = 0; j < n; j++) if (!surf.back[j]) one(j, false);
-  if ($("binside").checked) {
+  if ($("binside").checked && !wave) {
     // Each hemidiaphragm's descent: A2 has one coordinate for both; the sided model one per side
     // (posture.diaphragm lists the indices: [both] or [left, right]).
     const q = qAt(f), idx = posture.diaphragm || [6], share = surf.diaphragmBackShare;
@@ -592,7 +609,7 @@ function refScale(width, chan, gamma, mag) {
   const key = [posture.id, width, chan, gamma, $("bback").checked, $("binside").checked,
                $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bcentre").value, $("bglow").value, $("bgmix").value].join("|");
   if (refCache[key]) return refCache[key];
-  const keep = kase; kase = posture.cases.find(c => c.id === "reference");
+  const keep = kase; kase = posture.cases.find(c => c.id === "reference"); inRef = true;
   const B = posture.surface.bases[width];
   let m = 1e-9, peakF = 0, peakV = -1;
   for (let f = 0; f < kase.q.length; f++) {
@@ -604,7 +621,7 @@ function refScale(width, chan, gamma, mag) {
   let brightest = 1e-9;
   for (let f = 0; f < kase.q.length; f += 2) brightest = Math.max(brightest, accumulate(f, mag, width, chan, gamma, r));
   r.E = -Math.log(0.15) / brightest;
-  kase = keep;
+  kase = keep; inRef = false;
   return (refCache[key] = r);
 }
 function renderBlur(f, mag) {
@@ -655,7 +672,7 @@ function renderBlur(f, mag) {
 $("bgamma").oninput = () => { $("bgv").textContent = "γ " + (+$("bgamma").value).toFixed(2); render(); };
 // Exposure depends on magnification only through the dome's drawn height; recompute when it changes.
 $("mag").addEventListener("input", () => { for (const k in refCache) delete refCache[k]; });
-for (const id of ["bchan", "bw", "bback", "binside", "bsil", "bspine", "bunc"]) $(id).onchange = render;
+for (const id of ["bchan", "bw", "bback", "binside", "bsil", "bspine", "bunc", "bwave"]) $(id).onchange = render;
 // Shape changes move the light, so the exposure is recomputed; the oval's sliders only show with it.
 function shapeChanged() {
   for (const k in refCache) delete refCache[k];
