@@ -96,9 +96,28 @@ extension SidedBody {
     }
 
     /// Tone on named regions (stiffness × factor per region).
+    ///
+    /// The abdominal flanks also get a spring on the side wall's outward motion (2026-11-24). The
+    /// flank coordinate is only the flank's own bulge beyond what the front and the costal margin
+    /// carry, and in a quiet breath that is near zero (flankRatio −0.03; at peak the coordinate is
+    /// ~0.004), so stiffening it alone restrained nothing: a held flank left the breath unchanged
+    /// (bead bs-zwy). Held lateral abdominal muscles restrain the side wall itself, so a factor
+    /// f > 1 adds the bed's spring shape (mean outward motion of the lateral wall, ψ 60–120°, iliac
+    /// crest to xiphoid) with (f − 1) × that side's lower-bucket spring: ASSUMED sizing, the same
+    /// scale the bed uses. Softening (f < 1) changes the flank's own bulge only.
     public func toned(_ tone: [RegionTone]) -> SidedBody {
         var b = self
-        for t in tone { for c in t.coordinates { b.stiffness[c.rawValue] *= t.factor } }
+        for t in tone {
+            for c in t.coordinates { b.stiffness[c.rawValue] *= t.factor }
+            guard t.region == .flanks, t.factor > 1 else { continue }
+            let a = anatomy
+            for side in t.side.map({ [$0] }) ?? Side.allCases {
+                let c = SidedBody.vector(a) { s in a.sectorMotion(z: 1...a.xiphoid, psi: 60...120, side: side, s).x / 10 }
+                let k = (side == .left ? SidedCoordinate.lowerBucketL : .lowerBucketR).rawValue
+                guard abs(c[k]) > 1e-12 else { continue }
+                b.couplings.append((c, (t.factor - 1) * stiffness[k] / (c[k] * c[k])))
+            }
+        }
         return b
     }
 }

@@ -68,3 +68,18 @@ import Testing
         #expect(Legs(left: 0, right: 60).lumbarSideBend < 0 && Legs.kneesBent.lowBackOnFloor && !Legs(left: 0, right: 60).lowBackOnFloor)
     }
 }
+
+/// Flank tone restrains the side wall (bead bs-zwy, 2026-11-24): before, a held flank stiffened only
+/// the flank's own bulge, which is near zero in a quiet breath, so it changed nothing.
+@Suite struct FlankTone {
+    @Test func heldFlankRestrainsItsSide() {
+        var c = BodyConfiguration.standing
+        let plain = BodyGenerator.general(c).body.endInspiration(drive: Drive())
+        c.tone = [RegionTone(.flanks, side: .right, RegionTone.held)]
+        let held = BodyGenerator.general(c).body.endInspiration(drive: Drive())
+        let l = SidedCoordinate.lowerBucketL.rawValue, r = SidedCoordinate.lowerBucketR.rawValue
+        #expect(abs(plain[l] - plain[r]) < 1e-4)
+        #expect(held[r] < 0.8 * plain[r])       // the held side's lower ribs swing out less
+        #expect(held[r] < 0.8 * held[l])        // and less than the other side's
+    }
+}
