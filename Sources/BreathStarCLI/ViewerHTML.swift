@@ -114,6 +114,7 @@ let viewerHTML = #"""
     <button id="bstar" title="round container, no egg, glow 9 cm at 0.6, no outline">Breath Star look</button>
     <button id="bmine" title="the earlier settings: oval 1.25, wider low 0.1, no glow, outline on">earlier settings</button>
     <label><input type="checkbox" id="bunc"> soften where unsure</label>
+    <button id="bpop" title="opens the blur alone in its own window, to put on another display; this window's controls drive it. Double-click it for full screen.">Show in its own window</button>
     <label title="a made-up pattern, not the model: a band of motion that travels round the trunk once per breath, to see how each shape shows travel (blur only; the line view keeps the case)">Test wave <select id="bwave"><option value="off">off (the model)</option><option value="up">up the trunk</option><option value="updown">up, then back down</option><option value="side">side to side</option></select></label>
   </div>
   <div class="stage" style="background:#0d0f14"><canvas id="blur" width="840" height="920" style="display:block;width:100%;max-width:420px;margin:0 auto"></canvas></div>
@@ -316,7 +317,7 @@ function render() {
     + " · " + (kase.sizing || "");
   $("scrub").value = Math.round(t / D.period * 1000);
   traceCursor();
-  if (typeof renderBlur === "function") renderBlur(f, mag);
+  if (typeof renderBlur === "function") { renderBlur(f, mag); mirrorBlur(); }
   $("bunc").disabled = !posture.surface.uncertainty;
 }
 
@@ -669,6 +670,32 @@ function renderBlur(f, mag) {
     bx.fillStyle = "rgba(200,200,210,0.6)"; bx.font = "22px -apple-system, Helvetica, sans-serif"; bx.fillText("floor", fx + 6, BCY + 14);
   }
 }
+// The blur in its own window, for a second display: a bare page with one canvas, scaled to fit,
+// that this window copies each frame into. Double-click it to go full screen.
+let popWin = null, popCtx = null;
+function mirrorBlur() {
+  if (!popCtx) return;
+  if (popWin.closed) { popWin = popCtx = null; $("bpop").textContent = "Show in its own window"; return; }
+  popCtx.drawImage(BC, 0, 0);
+}
+$("bpop").onclick = () => {
+  if (popWin && !popWin.closed) { popWin.focus(); return; }
+  popWin = window.open("", "breathstar-blur", "popup,width=900,height=960");
+  if (!popWin) { alert("The browser blocked the window: allow pop-ups for this page."); return; }
+  const d = popWin.document;
+  d.open();
+  d.write(`<!doctype html><title>Breath Star blur</title><style>html,body{margin:0;height:100%;background:#0d0f14;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;object-fit:contain}body.idle{cursor:none}</style>
+<canvas id="c" width="${BC.width}" height="${BC.height}"></canvas>
+<script>
+document.addEventListener("dblclick", () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen());
+let t; document.addEventListener("mousemove", () => { document.body.classList.remove("idle"); clearTimeout(t); t = setTimeout(() => document.body.classList.add("idle"), 2000); });
+<\/script>`);
+  d.close();
+  popCtx = d.getElementById("c").getContext("2d");
+  $("bpop").textContent = "Bring its window forward";
+  render();
+};
 $("bgamma").oninput = () => { $("bgv").textContent = "γ " + (+$("bgamma").value).toFixed(2); render(); };
 // Exposure depends on magnification only through the dome's drawn height; recompute when it changes.
 $("mag").addEventListener("input", () => { for (const k in refCache) delete refCache[k]; });
