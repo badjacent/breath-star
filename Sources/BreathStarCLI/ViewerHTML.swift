@@ -90,6 +90,8 @@ let viewerHTML = #"""
     <label>Case <select id="case"></select></label>
     <button class="play" id="play">Pause</button>
     <label title="1× plays the breath at half its real pace (one breath every 7.5 s); the times shown are the model's">Speed <select id="speed"><option value="0.25">¼×</option><option value="0.5">½×</option><option value="1" selected>1× (half real time)</option><option value="2">real time</option></select></label>
+    <label title="made-up variation, not the model: each breath's breathing in and breathing out are stretched or squeezed by their own random amount, and a random pause follows breathing out. 0 = every breath the same. The shape of each breath is unchanged; only its pace.">Timing variation <input type="range" id="tvar" min="0" max="0.4" step="0.05" value="0"> <span id="tvarv">off</span></label>
+    <span id="tbreath" style="color:var(--muted);font-size:12px"></span>
   </div>
   <div class="controls lessonbar" id="lessonbar" hidden>
     <button id="lprev" title="previous step">◀</button>
@@ -356,10 +358,34 @@ function traceCursor() {
 }
 
 function setPlaying(p) { playing = p; $("play").textContent = p ? "Pause" : "Play"; last = null; }
+// Timing variation (a user setting, made up, not the model): per breath, breathing in and breathing
+// out are each stretched by a log-normal factor exp(v·N(0,1)), and a pause of up to v × the model's
+// breath length (uniform) follows breathing out, held at rest. v = 0: every breath the same.
+let fIn = 1, fEx = 1, pause = 0;
+function gauss() { let u = 0, w = 0; while (!u) u = Math.random(); while (!w) w = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * w); }
+function drawBreath() {
+  const v = +$("tvar").value, tin = D.inspiration;
+  fIn = Math.exp(v * gauss()); fEx = Math.exp(v * gauss());
+  pause = v * Math.random() * D.period;
+  const len = tin * fIn + (D.period - tin) * fEx + pause;
+  $("tbreath").textContent = v ? `this breath ${len.toFixed(1)} s (in ${(tin * fIn).toFixed(1)}, out ${((D.period - tin) * fEx).toFixed(1)}, pause ${pause.toFixed(1)})` : "";
+}
+$("tvar").oninput = () => { const v = +$("tvar").value; $("tvarv").textContent = v ? "±" + Math.round(v * 100) + "%" : "off"; drawBreath(); };
+function advance(dt) {
+  if (!+$("tvar").value) { t = (t + dt) % D.period; return; }
+  while (dt > 0) {
+    if (pause > 0) { const used = Math.min(pause, dt); pause -= used; dt -= used; t = 0; continue; }
+    const inBreathIn = t < D.inspiration, f = inBreathIn ? fIn : fEx;
+    const edge = inBreathIn ? D.inspiration : D.period, need = (edge - t) * f;
+    if (dt < need) { t += dt / f; return; }
+    dt -= need; t = edge;
+    if (!inBreathIn) { t = 0; drawBreath(); }
+  }
+}
 function tick(now) {
   if (playing) {
     // The user's preferred pace (2026-11-10): 1× plays at half real time; "real time" is 2×.
-    if (last !== null) t = (t + (now - last) / 1000 * PLAYBACK * +$("speed").value) % D.period;
+    if (last !== null) advance((now - last) / 1000 * PLAYBACK * +$("speed").value);
     last = now;
     render();
   }

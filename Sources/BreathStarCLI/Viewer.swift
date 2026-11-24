@@ -194,7 +194,8 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
     // The other postures come from the general rules (Settle.swift, stage 3): configuration in, body
     // out, one parameter set. Each breathes the quiet tidal volume; the drive it needs is shown.
     let quiet = GravityRules().quietTidal ?? 0.56
-    func rulePosture(_ id: String, _ label: String, _ c: BodyConfiguration, lyingOnSide: Bool = false) {
+    func rulePosture(_ id: String, _ label: String, _ c: BodyConfiguration, lyingOnSide: Bool = false,
+                     variants: [(String, String, BodyConfiguration)] = []) {
         let generated = BodyGenerator.body(c, drive: drive)
         let rule = BodyGenerator.general(c, drive: drive)
         let body = generated.body, a = body.anatomy
@@ -211,6 +212,8 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
         var cases: [(String, String, SidedBody)] = [("reference", "reference breath", body),
                                                     ("diaphragm-only", "diaphragm only (rib muscles silent)", body.silenced([.ribs])),
                                                     ("ribs-only", "rib muscles only (diaphragm silent)", body.silenced([.diaphragm]))]
+        // Variants of the configuration (other tone or shape), each at the quiet tidal volume.
+        for (vid, vlabel, vc) in variants { cases.append((vid, vlabel, BodyGenerator.general(vc, drive: drive).body)) }
         if lyingOnSide {
             // Lying on the floor: the spine's rest arc (Leilnahari 2011, firm surface; Sided.swift) and the
             // breath's room-frame lift as a basis per coordinate (cm per unit q), sampled along z. The
@@ -235,7 +238,7 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
         }
         entry["cases"] = cases.map {
             sidedViewerCase(id: $0.0, label: $0.1, body: $0.2, drive: drive,
-                            sizing: ["reference", "deformed-floor-side"].contains($0.0)
+                            sizing: (["reference", "deformed-floor-side"] + variants.map(\.0)).contains($0.0)
                                 ? "quiet tidal volume (\(String(format: "%.2f", quiet)) L); the model's drive needed here ×\(String(format: "%.2f", rule.driveScale)) of seated"
                                 : "same muscle drive as the reference")
         }
@@ -243,6 +246,26 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
         postures.append(entry)
     }
     rulePosture("standing", "Standing (derived from the hips; tonic abdominals not included)", .standing)
+    // Standing on the right leg (2026-11-24, at the user's request: a diagonal breath). No study measures
+    // breathing on one leg; the shape and tone follow what single-leg-stance studies describe (the
+    // trunk leans toward the standing leg; the trunk muscles on that side work to stop the other side
+    // of the pelvis dropping), with every size ASSUMED: the lumbar spine bent 6° toward the standing
+    // side, the thoracic spine 4° back the other way (keeping the head over the foot), and the
+    // standing side's abdominal flank lightly toned (×1.5). Legs: both taken as straight at the hip.
+    do {
+        var spine = SpineShape(); spine.lumbarSideBend = -6; spine.thoracicSideBend = 4
+        var c = BodyConfiguration.standing.with(spine, name: "standing on the right leg")
+        let lean = c
+        c.tone = [RegionTone(.flanks, side: .right, RegionTone.light)]
+        var held = c; held.tone = [RegionTone(.flanks, side: .right, RegionTone.held)]
+        // A diagonal holding pattern (not from any data: the user's idea, to see what the model does
+        // with one): the standing side's lower ribs and the other side's upper ribs held (×5).
+        var diag = c; diag.tone = [RegionTone(.lowerRibs, side: .right, RegionTone.held), RegionTone(.upperRibs, side: .left, RegionTone.held)]
+        rulePosture("one-leg", "Standing on the right leg (shape and tone assumed)", c,
+                    variants: [("lean-only", "the lean alone (no extra tone)", lean),
+                               ("flank-held", "standing side's flank held hard (×5)", held),
+                               ("diagonal-hold", "diagonal hold: right lower ribs and left upper ribs held (×5; a made-up pattern)", diag)])
+    }
     rulePosture("side-bend", "Seated, side-bend 20° to the left (stage 4)", BodyConfiguration.seated.with(SpineShape(sideBend: 20)))
     rulePosture("reclined", "Reclined 45° (backrest)", .reclined45)
     rulePosture("supine", "Lying on the back", .supine)
