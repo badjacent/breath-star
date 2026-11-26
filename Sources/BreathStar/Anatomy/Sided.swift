@@ -77,6 +77,7 @@ extension AnatomyModel {
         s.diaphragm = [q[10], q[11]]
         s.abdomenFront = q[12]
         s.abdomenFlank = [q[12] * flankRatio + q[13], q[12] * flankRatio + q[14]]
+        s.abdomenFrontShift = frontShiftPerFlank * (q[13] - q[14]) / 2
         return s
     }
 
@@ -450,6 +451,22 @@ public struct SidedBody: Sendable {
         }
     }
 
+    /// The front wall's shift (`AnatomyModel.frontShiftPerFlank`) is resisted as the wall itself is:
+    /// a spring on the volume it moves from one half to the other, (V_left − V_right)² / C_abdomen,
+    /// the energy the shared front stores for the same volume per half. It acts only on the flanks'
+    /// difference, so symmetric motion doesn't feel it.
+    static func frontShiftCoupling(anatomy a: AnatomyModel, compliance: Double) -> (c: [Double], k: Double)? {
+        guard a.frontShiftPerFlank != 0 else { return nil }
+        let h = 1e-2
+        var s = AnatomyState(); s.abdomenFrontShift = h
+        let o = a.observe(s), o0 = a.observe(AnatomyState())
+        let dv = ((o.abdomen[0] - o0.abdomen[0]) - (o.abdomen[1] - o0.abdomen[1])) / h
+        var c = [Double](repeating: 0, count: SidedCoordinate.count)
+        c[SidedCoordinate.flankL.rawValue] = dv * a.frontShiftPerFlank / 2
+        c[SidedCoordinate.flankR.rawValue] = -dv * a.frontShiftPerFlank / 2
+        return (c, 1 / compliance)
+    }
+
     /// The couplings: the costal arch, the rigid sternum, and (if a side is dependent) the bed.
     static func couplings(anatomy a: AnatomyModel, stiffness k: [Double], archFactor: Double,
                           dependent: Side?, bedGain: Double) -> [(c: [Double], k: Double)] {
@@ -498,7 +515,7 @@ public struct SidedBody: Sendable {
         func dot(_ v: [Double]) -> Double { zip(v, q).reduce(0) { $0 + $1.0 * $1.1 } }
         let ppl = (0..<2).map { -dot(jth[$0]) / (passive.lungCompliance / 2) }
         var body = SidedBody(anatomy: anatomy, geometry: g, passive: passive, stiffness: k, peakForce: [], dependent: nil)
-        body.couplings = cs
+        body.couplings = cs + (frontShiftCoupling(anatomy: anatomy, compliance: passive.abdomenCompliance).map { [$0] } ?? [])
         let kq = multiply(body.stiffnessMatrix, q)
         let pab = (kq[a] - ppl[0] * jth[0][a] - ppl[1] * jth[1][a]) / jab[a]
         var force = (0..<n).map { kq[$0] - ppl[0] * jth[0][$0] - ppl[1] * jth[1][$0] - pab * jab[$0] }
@@ -560,7 +577,7 @@ public struct SidedBody: Sendable {
             return seated.forceAsPressure(c.rawValue) * own[c.rawValue] * scale
         }
         var body = SidedBody(anatomy: anatomy, geometry: g, passive: passive, stiffness: k, peakForce: force, dependent: dependent)
-        body.couplings = cs
+        body.couplings = cs + (frontShiftCoupling(anatomy: anatomy, compliance: passive.abdomenCompliance).map { [$0] } ?? [])
         return mediastinalTransmission.map { body.withMediastinum(transmission: $0) } ?? body
     }
 

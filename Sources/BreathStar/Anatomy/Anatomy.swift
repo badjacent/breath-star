@@ -47,6 +47,10 @@ public struct AnatomyState: Sendable, Equatable {
     /// Abdominal wall outward displacement at the bulge's peak, cm: front (shared) and flank (per side).
     public var abdomenFront: Double = 0
     public var abdomenFlank: [Double] = [0, 0]
+    /// The front wall's shift toward the left (+) or right (−), cm at the bulge's peak: the left half
+    /// moves out by this much more than `abdomenFront`, the right half by this much less (sided body
+    /// only, 2026-11-26; see `AnatomyModel.frontShiftPerFlank`).
+    public var abdomenFrontShift: Double = 0
 
     public init() {}
 }
@@ -131,6 +135,15 @@ public struct AnatomyModel: Sendable {
     /// Not robust in size: −0.13 (slice volumes), −0.15 (surface, no arch). Used where the flank is
     /// tied to the front (the inverse map, A2's abdominal coordinate).
     public var flankRatio = -0.03
+    /// How far the front wall's halves shift with the flanks' difference (sided body; 2026-11-26,
+    /// bead bs-9zc): shift = this × (left flank − right flank) / 2. The belly's contents are a liquid
+    /// mass behind one wall, so when one flank bulges more than the other, that side's half of the
+    /// front goes out with it and the other half comes in (volume conserved). Until then the front
+    /// was one coordinate for both halves, which capped side-lying's left–right difference at ~44/56
+    /// whatever the floor did. ASSUMED 1 (the front half moves as far as the flank); no source sizes
+    /// it. Zero when the flanks move together, so symmetric postures are unchanged. 0 restores the
+    /// old model.
+    public var frontShiftPerFlank = 1.0
     /// Share of each rib band's (surface) region volume that comes from dilation rather than
     /// rotation, used by the inverse map. A RESULT of `fitToMarkers` on Takashima sitting
     /// (arch-constrained, 2026-11-09): upper 0.56; lower 1.24, above 1 because the lower band's
@@ -399,7 +412,7 @@ extension AnatomyModel {
         let margin = ribDisplacement(z: rb, psi: psi, side: side, upper: false, s)
         let c = marginCarry(z, height: rb), b = bulge(z, height: rb)
         return (margin.x * c + s.abdomenFlank[side.rawValue] * b * abs(sin(psi)),
-                margin.y * c + s.abdomenFront * b * pow((1 + cos(psi)) / 2, bulgeExponent),
+                margin.y * c + (s.abdomenFront + (side == .left ? 1 : -1) * s.abdomenFrontShift) * b * pow((1 + cos(psi)) / 2, bulgeExponent),
                 margin.z * pow(c, verticalCarryExponent))
     }
 

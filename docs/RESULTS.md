@@ -29,7 +29,7 @@ upper rib muscles' postural share), 45° and face down are held out.
 | 45°, shares | 34.5/13.3/52.2 | Mendes men 31.0/14.3/55.4; LoMauro 2024 belly 52.0 |
 | supine, shares | 23.3/9.8/67.0 | Mendes men 19.5/11.5/69.8; Kouyama 2016 14/18/66 |
 | side-lying, floor-side lung | 59.2% | 51–62% (Amano, Grant) |
-| side-lying, floor-side chest wall | moves less (234 vs 326 mL) | less (Nozoe 2014) |
+| side-lying, floor-side chest wall | moves less (224 vs 336 mL; 234 vs 326 before the front wall's halves could shift, 2026-11-26) | less, from the lower ribcage and belly (Nozoe 2014; sizes paywalled) |
 | sitting → supine, end-expiratory volume | −0.84 L | −0.81 L (Lumb & Nunn) |
 | sitting → side, end-expiratory volume | −0.40 L | −0.46 L |
 | face down, belly | 73.5% | **42.5% (LoMauro 2024): a known miss** |

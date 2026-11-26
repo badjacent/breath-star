@@ -192,3 +192,32 @@ import Testing
         #expect(br.lung[0] > 0 && br.lung[0] < 0.5 * br.lung[1])
     }
 }
+
+/// The front wall's halves shift with the flanks' difference (bead bs-9zc, 2026-11-26).
+@Suite struct FrontShift {
+    @Test func oneFlankOutShiftsTheFrontTowardIt() {
+        let a = AnatomyModel()
+        var q = [Double](repeating: 0, count: SidedCoordinate.count)
+        q[SidedCoordinate.flankL.rawValue] = 0.2
+        let s = a.sidedState(q)
+        #expect(abs(s.abdomenFrontShift - 0.1 * a.frontShiftPerFlank) < 1e-12)
+        var front = AnatomyState(); front.abdomenFrontShift = 0.1
+        let o = a.observe(front), o0 = a.observe(AnatomyState())
+        let dl = o.abdomen[0] - o0.abdomen[0], dr = o.abdomen[1] - o0.abdomen[1]
+        #expect(dl > 0 && dr < 0)
+        #expect(abs(dl + dr) < 1e-3 * abs(dl))      // volume moves from one half to the other
+    }
+
+    @Test func symmetricPosturesUnchangedSideLyingMoreUneven() {
+        let d = Drive()
+        func measure(_ c: BodyConfiguration) -> SidedBreath {
+            SidedBreath.measure(BodyGenerator.general(c, drive: d).body.simulate(drive: d), period: d.period)
+        }
+        let seated = measure(.seated)
+        #expect(abs(seated.chestWall[0] - seated.chestWall[1]) < 1e-4)
+        // Side-lying, the floor side's wall share: 41.9% with one shared front (until 2026-11-26),
+        // 40.1% with the halves shifting at the assumed ×1.
+        let side = measure(.rightSideDown), w = side.chestWall
+        #expect(w[1] / (w[0] + w[1]) < 0.41)
+    }
+}
