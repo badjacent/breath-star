@@ -165,6 +165,41 @@ func sidedViewerCase(id: String, label: String, body: SidedBody, drive: Drive, f
     ]
 }
 
+/// A breath that moves from one pattern to another while breathing in: two cases' frames mixed with
+/// a weight that eases from 0 to 1 over inspiration and stays at 1 while breathing out (back at rest
+/// the two agree, so the restart is smooth). The geometry is linear in q, so mixing q mixes shapes.
+/// For felt patterns, not the model's prediction.
+func blendedViewerCase(id: String, label: String, from a: [String: Any], to b: [String: Any], inspiration: Double,
+                       sizing: String) -> [String: Any] {
+    let t = a["t"] as! [Double]
+    let w: [Double] = t.map { (tt: Double) -> Double in
+        let x: Double = min(1, max(0, tt / inspiration))
+        return x * x * (3 - 2 * x)
+    }
+    func mix(_ k: String) -> [Double] {
+        let xa = a[k] as! [Double], xb = b[k] as! [Double]
+        return (0..<xa.count).map { (i: Int) -> Double in round5(xa[i] * (1 - w[i]) + xb[i] * w[i]) }
+    }
+    let qa = a["q"] as! [[Double]], qb = b["q"] as! [[Double]]
+    var q: [[Double]] = []
+    for i in 0..<t.count {
+        let wi: Double = w[i]
+        var row: [Double] = []
+        for c in 0..<qa[i].count { row.append(round5(qa[i][c] * (1 - wi) + qb[i][c] * wi)) }
+        q.append(row)
+    }
+    let lung = mix("lung"), upper = mix("upper"), lower = mix("lower"), abdomen = mix("abdomen")
+    let hi: Int = lung.indices.max { lung[$0] < lung[$1] }!
+    let lo: Int = lung.indices.min { lung[$0] < lung[$1] }!
+    let du: Double = upper[hi] - upper[lo], dl: Double = lower[hi] - lower[lo], da: Double = abdomen[hi] - abdomen[lo]
+    let cw: Double = du + dl + da
+    let shares: [Double] = [round5(du / cw), round5(dl / cw), round5(da / cw)]
+    var out: [String: Any] = ["id": id, "label": label, "sizing": sizing, "t": t, "q": q]
+    out["lung"] = lung; out["upper"] = upper; out["lower"] = lower; out["abdomen"] = abdomen
+    out["tidal"] = round5(lung[hi] - lung[lo]); out["shares"] = shares
+    return out
+}
+
 func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [String]) {
     let drive = Drive()
     var report: [String] = []
@@ -195,7 +230,8 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
     // out, one parameter set. Each breathes the quiet tidal volume; the drive it needs is shown.
     let quiet = GravityRules().quietTidal ?? 0.56
     func rulePosture(_ id: String, _ label: String, _ c: BodyConfiguration, lyingOnSide: Bool = false,
-                     variants: [(String, String, BodyConfiguration)] = []) {
+                     variants: [(String, String, BodyConfiguration)] = [],
+                     felt: ((SidedBody) -> (id: String, label: String, from: SidedBody, to: SidedBody))? = nil) {
         let generated = BodyGenerator.body(c, drive: drive)
         let rule = BodyGenerator.general(c, drive: drive)
         let body = generated.body, a = body.anatomy
@@ -242,6 +278,14 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
                                 ? "quiet tidal volume (\(String(format: "%.2f", quiet)) L); the model's drive needed here ×\(String(format: "%.2f", rule.driveScale)) of seated"
                                 : "same muscle drive as the reference")
         }
+        if let felt {
+            let f = felt(body), sizing = "quiet tidal volume (\(String(format: "%.2f", quiet)) L) at each end; a felt pattern, not a prediction"
+            let from = sidedViewerCase(id: "a", label: "", body: f.from.matchedToTidal(quiet, drive: drive), drive: drive)
+            let to = sidedViewerCase(id: "b", label: "", body: f.to.matchedToTidal(quiet, drive: drive), drive: drive)
+            var cs = entry["cases"] as! [[String: Any]]
+            cs.append(blendedViewerCase(id: f.id, label: f.label, from: from, to: to, inspiration: drive.dutyCycle * drive.period, sizing: sizing))
+            entry["cases"] = cs
+        }
         if let bend = bendData(a, c.spine) { entry["bend"] = bend }
         postures.append(entry)
     }
@@ -270,7 +314,16 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
     rulePosture("reclined", "Reclined 45° (backrest)", .reclined45)
     rulePosture("supine", "Lying on the back", .supine)
     rulePosture("knees-bent", "Lying on the back, knees bent, feet standing (Legs; sizes assumed)", BodyConfiguration.supine.with(Legs.kneesBent))
-    rulePosture("right-side", "Lying on the right side (on the floor)", .rightSideDown, lyingOnSide: true)
+    // The user's felt pattern lying on the right side (2026-11-26): the floor side long and open at
+    // first, then held by the floor so the upper side takes more. Made up, not a fit or a prediction:
+    // breathing in moves from "the upper side's ribs and flank held ×5" (the floor side opens: 57% of
+    // the wall's motion on the floor side) to "the floor side's ribs held ×5" (33%). Both keep the
+    // model's lung split (the floor-side lung ~60%, as measured); the model has the wall at 40%.
+    rulePosture("right-side", "Lying on the right side (on the floor)", .rightSideDown, lyingOnSide: true,
+                felt: { b in (id: "felt-floor-then-up", label: "felt: the floor side opens first, then the upper side takes more (made up)",
+                              from: b.toned([RegionTone(.lowerRibs, side: .left, RegionTone.held), RegionTone(.upperRibs, side: .left, RegionTone.held),
+                                             RegionTone(.flanks, side: .left, RegionTone.held)]),
+                              to: b.toned([RegionTone(.lowerRibs, side: .right, RegionTone.held), RegionTone(.upperRibs, side: .right, RegionTone.held)])) })
     rulePosture("prone", "Lying face down", .prone)
 
     // Stage 7: the lesson, step by step (Lesson.swift). Each step shares its geometry with the
