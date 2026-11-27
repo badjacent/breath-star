@@ -119,6 +119,11 @@ let viewerHTML = #"""
     <button id="bpop" title="opens the blur alone in its own window, to put on another display; this window's controls drive it. Double-click it for full screen.">Show in its own window</button>
     <label title="a made-up pattern, not the model: a band of motion that travels round the trunk once per breath, to see how each shape shows travel (blur only; the line view keeps the case)">Test wave <select id="bwave"><option value="off">off (the model)</option><option value="up">up the trunk</option><option value="updown">up, then back down</option><option value="side">side to side</option></select></label>
   </div>
+  <div class="controls">
+    <label title="a second blur beside the first, at the same point in the breath and on the same brightness scale (the first posture's reference breath)">Compare with <select id="cposture"></select></label>
+    <label>case <select id="ccase"></select></label>
+    <label title="the second blur shows this case minus the comparison, point by point, scaled so the largest difference over the breath is full brightness: orange where the first moves further out (or less in), blue where the comparison does"><input type="checkbox" id="cdelta"> show the difference instead</label>
+  </div>
   <div class="stage" style="background:#0d0f14"><canvas id="blur" width="840" height="920" style="display:block;width:100%;max-width:420px;margin:0 auto"></canvas></div>
   <p class="note">Blue-white: outward. Violet: inward. With "fullness" that means the wall is inward of where it rests at
      the end of breathing out (in a healthy breath, only a paradox does that). With "wall speed" violet also shows the
@@ -127,7 +132,7 @@ let viewerHTML = #"""
      brightness ratios are not motion ratios. "Soften where unsure" widens the light where 12 variants of the model,
      with its assumed numbers and the marker means redrawn, disagree (seated only); the variants leave out the
      structural choices, so this understates the uncertainty. "Test wave" replaces the model's light with a made-up
-     band that travels round the trunk once per breath, to compare how the shapes show travel; it is not a prediction. Trunk only: the model has no head or limbs.
+     band that travels round the trunk once per breath, to compare how the shapes show travel; it is not a prediction. <b>Compare with</b> puts a second blur beside the first, at the same point in the breath and lit on the first posture's reference scale, so a weaker breath looks weaker; the popup window shows both. "Show the difference instead" replaces the second blur with the first minus the comparison, point by point on the same surface grid, drawn on the first posture's shape: orange where the first is further out (or less far in), blue where the comparison is. It is scaled so the largest difference over the whole breath is full brightness, so it shows where the two differ, not how large the difference is next to the breath itself. Cases are matched to the same breath size, so the difference is where the breath goes, not how much of it there is. Trunk only: the model has no head or limbs.
      <b>Felt container:</b> the trunk surface mapped smoothly onto an oval, nothing cropped; the iliac crests and the top
      of the ribcage become its poles (the pelvic bowl and the lung apices are not modelled, so the poles are carried by
      their neighbours). "Room by breath" gives each height space by how much it moves in the reference breath; light is
@@ -454,6 +459,7 @@ const off = document.createElement("canvas"); off.width = GW; off.height = GH;
 const offx = off.getContext("2d"), img = offx.createImageData(GW, GH);
 const COL = { out: [0.45, 0.72, 1.0], back: [0.12, 0.28, 1.0], in: [0.85, 0.25, 1.0], dia: [0.15, 0.95, 0.70] };
 const BG = [13, 15, 20];
+const DCOL = { pos: [1.0, 0.55, 0.18], neg: [0.25, 0.65, 1.0] };   // difference: more here / more in the comparison
 // ---- Shape: body outline, or the felt container (docs/LESSON_ADAPTATION.md §7.1) ----
 // The felt container is a smooth, reversible map from the trunk surface's front projection (x, z) to an
 // egg-shaped oval: every point keeps a place (the flat cuts at the iliac crests and the top of the ribcage
@@ -577,10 +583,10 @@ function channel(surf, B, f, chan) {
   return a;
 }
 // Accumulate one frame's light; returns the brightest cell's total.
-function accumulate(f, mag, width, chan, gamma, ref) {
+function accumulate(f, mag, width, chan, gamma, ref, over) {
   for (const a of acc) a.fill(0);
-  const surf = posture.surface, wave = !inRef && $("bwave").value !== "off";
-  const vals = wave ? waveValues(surf, f, ref.m) : channel(surf, surf.bases[width], f, chan);
+  const surf = posture.surface, wave = !inRef && !over && $("bwave").value !== "off";
+  const vals = over ? over(f) : wave ? waveValues(surf, f, ref.m) : channel(surf, surf.bases[width], f, chan);
   const unc = $("bunc").checked && surf.uncertainty;
   const n = surf.x.length;
   const one = (j, back) => {
@@ -590,11 +596,11 @@ function accumulate(f, mag, width, chan, gamma, ref) {
     if (unc) sigma *= 1 + 1.5 * Math.min(1, surf.uncertainty[j]);
     const [px, pz] = toDisplay(surf.x[j], surf.z[j]);
     const sh = shapeOf(), J = sh ? sh.areaScale(surf.x[j], surf.z[j]) : 1;
-    splat(px, pz, sigma * Math.sqrt(J), L * surf.projArea[j] * J * (back ? 0.6 : 1), vals[j] < 0 ? COL.in : back ? COL.back : COL.out);
+    splat(px, pz, sigma * Math.sqrt(J), L * surf.projArea[j] * J * (back ? 0.6 : 1), over ? (vals[j] < 0 ? DCOL.neg : DCOL.pos) : vals[j] < 0 ? COL.in : back ? COL.back : COL.out);
   };
   if ($("bback").checked) for (let j = 0; j < n; j++) if (surf.back[j]) one(j, true);
   for (let j = 0; j < n; j++) if (!surf.back[j]) one(j, false);
-  if ($("binside").checked && !wave) {
+  if ($("binside").checked && !wave && !over) {
     // Each hemidiaphragm's descent: A2 has one coordinate for both; the sided model one per side
     // (posture.diaphragm lists the indices: [both] or [left, right]).
     const q = qAt(f), idx = posture.diaphragm || [6], share = surf.diaphragmBackShare;
@@ -651,17 +657,64 @@ function refScale(width, chan, gamma, mag) {
   kase = keep; inRef = false;
   return (refCache[key] = r);
 }
+// Comparison (side by side): the second panel is another posture and case at the same point in the
+// breath, lit on the first posture's reference scale; or the difference, first minus comparison, point
+// by point (both on the same 1548-point surface grid, each through its own posture's basis), drawn on the
+// first posture's shape and scaled so the largest difference over the breath is full brightness.
+function withCompare(fn) {
+  const keepP = posture, keepK = kase;
+  posture = D.postures.find(p => p.id === $("cposture").value);
+  kase = posture.cases.find(c => c.id === $("ccase").value) || posture.cases[0];
+  try { return fn(); } finally { posture = keepP; kase = keepK; }
+}
+function deltaVals(width, chan) {
+  return f => {
+    const a = channel(posture.surface, posture.surface.bases[width], f, chan);
+    const b = withCompare(() => channel(posture.surface, posture.surface.bases[width], f, chan));
+    for (let j = 0; j < a.length; j++) a[j] -= b[j];
+    return a;
+  };
+}
+const deltaCache = {};
+function deltaScale(width, chan, gamma, mag, over) {
+  const key = [posture.id, kase.id, $("cposture").value, $("ccase").value, width, chan, gamma, $("bback").checked,
+               $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bcentre").value, $("bglow").value, $("bgmix").value].join("|");
+  if (deltaCache[key]) return deltaCache[key];
+  let m = 1e-12;
+  for (let f = 0; f < kase.q.length; f++) for (const x of over(f)) m = Math.max(m, Math.abs(x));
+  const r = { m, E: 1 };
+  let brightest = 1e-12;
+  for (let f = 0; f < kase.q.length; f += 2) brightest = Math.max(brightest, accumulate(f, mag, width, chan, gamma, r, over));
+  r.E = -Math.log(0.15) / brightest;
+  return (deltaCache[key] = r);
+}
 function renderBlur(f, mag) {
   const width = $("bw").value, chan = $("bchan").value, gamma = +$("bgamma").value;
   const ref = refScale(width, chan, gamma, mag);
+  const two = $("cposture").value !== "none";
+  if (BC.width !== (two ? 1680 : 840)) { BC.width = two ? 1680 : 840; BC.style.maxWidth = two ? "840px" : "420px"; }
+  bx.fillStyle = "#0d0f14"; bx.fillRect(0, 0, BC.width, BC.height);
+  const name = () => posture.label + " · " + kase.label;
   accumulate(f, mag, width, chan, gamma, ref);
+  blurPanel(f, mag, 420, ref, two ? name() : null);
+  if (!two) return;
+  if ($("cdelta").checked) {
+    const over = deltaVals(width, chan), dref = deltaScale(width, chan, gamma, mag, over);
+    const tiny = dref.m < 1e-3 * ref.m;
+    if (!tiny) accumulate(f, mag, width, chan, gamma, dref, over); else for (const a of acc) a.fill(0);
+    const other = withCompare(name);
+    blurPanel(f, mag, 1260, dref, tiny ? "no difference: the same breath" : "difference: orange = more in the first, blue = more in " + other);
+  } else {
+    withCompare(() => { accumulate(f, mag, width, chan, gamma, ref); blurPanel(f, mag, 1260, ref, name()); });
+  }
+}
+function blurPanel(f, mag, BCX, ref, label) {
   const d = img.data;
   for (let k = 0; k < GW * GH; k++) {
     for (let c = 0; c < 3; c++) d[4 * k + c] = BG[c] + (255 - BG[c]) * (1 - Math.exp(-ref.E * acc[c][k]));
     d[4 * k + 3] = 255;
   }
   offx.putImageData(img, 0, 0);
-  bx.fillStyle = "#0d0f14"; bx.fillRect(0, 0, BC.width, BC.height);
   bx.imageSmoothingEnabled = true; bx.imageSmoothingQuality = "high";
   bx.drawImage(off, BCX + X0 * BK, BCY - ZTOP * BK, GW * CELL * BK, GH * CELL * BK);
   if ($("bsil").checked) {
@@ -695,6 +748,10 @@ function renderBlur(f, mag) {
     bx.beginPath(); bx.moveTo(fx, BCY - 46 * BK); bx.lineTo(fx, BCY + 2 * BK); bx.stroke(); bx.setLineDash([]);
     bx.fillStyle = "rgba(200,200,210,0.6)"; bx.font = "22px -apple-system, Helvetica, sans-serif"; bx.fillText("floor", fx + 6, BCY + 14);
   }
+  if (label) {
+    bx.fillStyle = "rgba(220,225,235,0.75)"; bx.font = "24px -apple-system, Helvetica, sans-serif"; bx.textAlign = "center";
+    bx.fillText(label, BCX, 40, 800); bx.textAlign = "start";
+  }
 }
 // The blur in its own window, for a second display: a bare page with one canvas, scaled to fit,
 // that this window copies each frame into. Double-click it to go full screen.
@@ -702,6 +759,7 @@ let popWin = null, popCtx = null;
 function mirrorBlur() {
   if (!popCtx) return;
   if (popWin.closed) { popWin = popCtx = null; $("bpop").textContent = "Show in its own window"; return; }
+  if (popCtx.canvas.width !== BC.width) popCtx.canvas.width = BC.width;
   popCtx.drawImage(BC, 0, 0);
 }
 $("bpop").onclick = () => {
@@ -752,6 +810,19 @@ $("bshape").onchange = shapeChanged;
 for (const e of document.querySelectorAll(".ovalc")) e.style.display = $("bshape").value !== "body" ? "" : "none";
   for (const e of document.querySelectorAll(".radialc")) e.style.display = $("bshape").value === "radial" ? "" : "none";
   for (const e of document.querySelectorAll(".eggc")) e.style.display = $("bshape").value === "oval" ? "" : "none";
+
+// Comparison pickers: the postures that have their own surface (lesson steps share theirs), and their cases.
+$("cposture").innerHTML = '<option value="none">nothing (one blur)</option>'
+  + D.postures.filter(p => !p.group).map(p => `<option value="${p.id}">${p.label}</option>`).join("");
+$("cposture").value = "supine";
+function fillCompareCases() {
+  const p = D.postures.find(p => p.id === $("cposture").value);
+  $("ccase").innerHTML = p ? p.cases.map(c => `<option value="${c.id}">${c.label}</option>`).join("") : "";
+  $("ccase").disabled = $("cdelta").disabled = !p;
+}
+fillCompareCases();
+$("cposture").onchange = () => { fillCompareCases(); render(); };
+for (const id of ["ccase", "cdelta"]) $(id).onchange = render;
 
 fillCases(); scaffold(); render();
 requestAnimationFrame(tick);
