@@ -146,7 +146,7 @@ func viewerCase(id: String, label: String, body: A2Body, drive: Drive, frames: I
 
 /// The same for a sided body: q in the 15 sided coordinates, both sides' volumes summed.
 func sidedViewerCase(id: String, label: String, body: SidedBody, drive: Drive, frames: Int = 60,
-                sizing: String = "same muscle drive as the reference") -> [String: Any] {
+                sizing: String = "same muscle drive as the reference", felt: FeltSplit? = nil) -> [String: Any] {
     let dt = 0.002
     let sim = body.simulate(drive: drive, timeStep: dt)
     let perCycle = Int((drive.period / dt).rounded())
@@ -155,14 +155,15 @@ func sidedViewerCase(id: String, label: String, body: SidedBody, drive: Drive, f
     let t0 = picked[0].time
     let m = SidedBreath.measure(sim, period: drive.period)
     func sum(_ v: [Double]) -> Double { round5(v[0] + v[1]) }
-    return [
+    let feltKeys = felt.map { feltCase(body: body, split: $0, samples: picked, drive: drive) } ?? [:]
+    return feltKeys.merging([
         "id": id, "label": label, "sizing": sizing,
         "t": picked.map { round5($0.time - t0) },
         "q": picked.map { $0.q.map(round5) },
         "lung": picked.map { round5($0.totalLung) }, "upper": picked.map { sum($0.upper) },
         "lower": picked.map { sum($0.lower) }, "abdomen": picked.map { sum($0.abdomen) },
         "tidal": round5(m.tidalVolume), "shares": [round5(m.upperShare), round5(m.lowerShare), round5(m.abdomenShare)],
-    ]
+    ] as [String: Any]) { $1 }
 }
 
 /// A breath that moves from one pattern to another while breathing in: two cases' frames mixed with
@@ -197,6 +198,15 @@ func blendedViewerCase(id: String, label: String, from a: [String: Any], to b: [
     var out: [String: Any] = ["id": id, "label": label, "sizing": sizing, "t": t, "q": q]
     out["lung"] = lung; out["upper"] = upper; out["lower"] = lower; out["abdomen"] = abdomen
     out["tidal"] = round5(lung[hi] - lung[lo]); out["shares"] = shares
+    // The felt quantities mix the same way (each is linear in q and the drive).
+    for k in ["elastic", "effort", "floor"] {
+        guard let xa = a[k] as? [[Double]], let xb = b[k] as? [[Double]] else { continue }
+        out[k] = (0..<xa.count).map { (i: Int) -> [Double] in
+            let wi: Double = w[i]
+            return (0..<xa[i].count).map { (c: Int) -> Double in round4(xa[i][c] * (1 - wi) + xb[i][c] * wi) }
+        }
+    }
+    for k in ["restElastic", "restQ", "patches", "restStrain"] { if let v = a[k] { out[k] = v } }
     return out
 }
 
@@ -236,20 +246,21 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
         let rule = BodyGenerator.general(c, drive: drive)
         let body = generated.body, a = body.anatomy
         let map = CoordinateMap.sided(a)
+        let split = feltSplit(c, drive: drive)
         let geo = viewerGeometry(a, map: map)
         let endQ = body.endInspiration(drive: drive)
         report.append("\(id): linear frames vs exact geometry at end inspiration, worst point \(String(format: "%.4f", geo.maxLinearError(endQ) * 10)) mm (true scale); drive needed ×\(String(format: "%.2f", rule.driveScale))")
         var entry: [String: Any] = [
             "id": id, "label": label, "layers": geo.layers,
             "diaphragm": [SidedCoordinate.diaphragmL.rawValue, SidedCoordinate.diaphragmR.rawValue],
-            "surface": blurSurface(a, map: map),
+            "surface": blurSurface(a, map: map), "own": body.geometry.own.map(round4),
             "landmarks": ["costal margin": a.costalMargin, "xiphoid": a.xiphoid, "top of ribcage": a.top],
         ]
-        var cases: [(String, String, SidedBody)] = [("reference", "reference breath", body),
-                                                    ("diaphragm-only", "diaphragm only (rib muscles silent)", body.silenced([.ribs])),
-                                                    ("ribs-only", "rib muscles only (diaphragm silent)", body.silenced([.diaphragm]))]
+        var cases: [(String, String, SidedBody, FeltSplit)] = [("reference", "reference breath", body, split),
+                                                    ("diaphragm-only", "diaphragm only (rib muscles silent)", body.silenced([.ribs]), split),
+                                                    ("ribs-only", "rib muscles only (diaphragm silent)", body.silenced([.diaphragm]), split)]
         // Variants of the configuration (other tone or shape), each at the quiet tidal volume.
-        for (vid, vlabel, vc) in variants { cases.append((vid, vlabel, BodyGenerator.general(vc, drive: drive).body)) }
+        for (vid, vlabel, vc) in variants { cases.append((vid, vlabel, BodyGenerator.general(vc, drive: drive).body, feltSplit(vc, drive: drive))) }
         if lyingOnSide {
             // Lying on the floor: the spine's rest arc (Leilnahari 2011, firm surface; Sided.swift) and the
             // breath's room-frame lift as a basis per coordinate (cm per unit q), sampled along z. The
@@ -269,19 +280,20 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
             entry["lying"] = ["z": zs, "x": arcX, "tilt": arcTilt, "liftBasis": liftBasis, "floor": round5(floor),
                               "sagCm": round5(SideLyingArc.firmSurface.sag)] as [String: Any]
             // The floor side's deformed lower ribs stiffer (9e66086; gain ASSUMED ×2).
+            let deformed = body.withDeformedSide().matchedToTidal(quiet, drive: drive)
             cases.append(("deformed-floor-side", "floor-side ribs stiffer (deformed; assumed ×2)",
-                          body.withDeformedSide().matchedToTidal(quiet, drive: drive)))
+                          deformed, split.addingTissue(body, deformed)))
         }
         entry["cases"] = cases.map {
             sidedViewerCase(id: $0.0, label: $0.1, body: $0.2, drive: drive,
                             sizing: (["reference", "deformed-floor-side"] + variants.map(\.0)).contains($0.0)
                                 ? "quiet tidal volume (\(String(format: "%.2f", quiet)) L); the model's drive needed here ×\(String(format: "%.2f", rule.driveScale)) of seated"
-                                : "same muscle drive as the reference")
+                                : "same muscle drive as the reference", felt: $0.3)
         }
         if let felt {
             let f = felt(body), sizing = "quiet tidal volume (\(String(format: "%.2f", quiet)) L) at each end; a felt pattern, not a prediction"
-            let from = sidedViewerCase(id: "a", label: "", body: f.from.matchedToTidal(quiet, drive: drive), drive: drive)
-            let to = sidedViewerCase(id: "b", label: "", body: f.to.matchedToTidal(quiet, drive: drive), drive: drive)
+            let from = sidedViewerCase(id: "a", label: "", body: f.from.matchedToTidal(quiet, drive: drive), drive: drive, felt: split)
+            let to = sidedViewerCase(id: "b", label: "", body: f.to.matchedToTidal(quiet, drive: drive), drive: drive, felt: split)
             var cs = entry["cases"] as! [[String: Any]]
             cs.append(blendedViewerCase(id: f.id, label: f.label, from: from, to: to, inspiration: drive.dutyCycle * drive.period, sizing: sizing))
             entry["cases"] = cs
@@ -343,6 +355,7 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
             let m = SidedBreath.measure(rule.body.simulate(drive: drive), period: drive.period)
             out[st.id] = m
             let verdict = lessonVerdict(st, m, out, lesson: lesson, breath: breathOf)
+            let stepSplit = feltSplit(c, drive: drive)
             var cases: [(String, String, SidedBody)] = [("reference", "the step's breath", rule.body)]
             if st.id == lesson.before || st.id == lesson.after {
                 var cs = c; cs.carried = carried[st.id]!
@@ -359,7 +372,8 @@ func viewerData(lesson: Lesson = Lessons.example) -> (json: Data, report: [Strin
                            "provenance": "position \(st.position.rawValue), shape \(st.shape.rawValue), tone \(st.tone.rawValue)",
                            "drive": round5(rule.driveScale)] as [String: Any],
                 "cases": cases.map { sidedViewerCase(id: $0.0, label: $0.1, body: $0.2, drive: drive,
-                                                      sizing: "quiet tidal volume (\(String(format: "%.2f", quiet)) L)") },
+                                                      sizing: "quiet tidal volume (\(String(format: "%.2f", quiet)) L)", felt: stepSplit) },
+                "own": rule.body.geometry.own.map(round4),
             ]
             if let bend = bendData(c.posture == .upright ? AnatomyModel() : AnatomyModel.resting(gravity: c.gravity), c.spine) { entry["bend"] = bend }
             postures.append(entry)
@@ -476,6 +490,12 @@ func surfaceBlur(_ g: SurfaceGrid, sigma: Double) -> (([Double]) -> [Double]) {
     return { f in rows.map { row in row.reduce(0.0) { $0 + $1.1 * f[$1.0] } } }
 }
 
+func round3(_ x: Double) -> Double {
+    guard x != 0, x.isFinite else { return 0 }
+    let m = pow(10, 3 - (log10(abs(x))).rounded(.up))
+    return (x * m).rounded() / m
+}
+
 func round4(_ x: Double) -> Double {
     guard x != 0, x.isFinite else { return 0 }
     let m = pow(10, 4 - (log10(abs(x))).rounded(.up))
@@ -504,6 +524,22 @@ func blurSurface(_ a: AnatomyModel, map: CoordinateMap? = nil, alternatives: [(a
         "projArea": g.projArea.map(round4), "bases": bases,
         "diaphragmBackShare": a.diaphragmBackShare,
     ]
+    if n == SidedCoordinate.count {
+        // What can be felt (Felt.swift): the wall's area strain per coordinate, blurred as the motion
+        // is; each coordinate's Σ b²·a for turning a force into a surface pressure (b in cm; × 0.001 L
+        // per cm³, so force / norm × b is cmH2O); and where each vertex sits, for the floor patches.
+        let strain = strainBasis(a, g, map: map)
+        var sb: [String: Any] = [:]
+        for sigma in [2.0, 4.0, 8.0] {
+            let blur = surfaceBlur(g, sigma: sigma)
+            sb[String(Int(sigma))] = strain.map { blur($0).map(round3) }
+        }
+        out["strain"] = sb
+        out["norm"] = raw.map { b in round4(0.001 * zip(b, g.area).reduce(0.0) { $0 + $1.0 * $1.0 * $1.1 }) }
+        out["psi"] = g.psi
+        out["side"] = g.side.map { $0 == .left ? 1 : -1 }
+        out["volumeCheck"] = raw.map { b in round4(0.001 * zip(b, g.area).reduce(0.0) { $0 + $1.0 * $1.1 }) }
+    }
     // Uncertainty: SD across alternatives of the (4 cm) blurred end-inspiration motion, relative
     // to the reference's own motion there (floored at 5% of its peak so quiet places don't blow up).
     if let refState = reference, !alternatives.isEmpty {

@@ -99,7 +99,8 @@ let viewerHTML = #"""
     <div id="linfo" style="flex:1 1 420px;min-width:0"></div>
   </div>
   <div class="controls">
-    <label>Light from <select id="bchan"><option value="d">fullness (how far out)</option><option value="v">wall speed (how fast the skin moves)</option></select></label>
+    <label>Light from <select id="bchan"><option value="d">fullness (how far out)</option><option value="v">wall speed (how fast the skin moves)</option><optgroup label="what can be felt (not for Seated)"><option value="stretch">stretch (the wall's area strain)</option><option value="push">push (the tissue's elastic force)</option><option value="effort">effort (the muscles' force)</option><option value="floor">floor (pressure on the support)</option></optgroup></select></label>
+    <label title="stretch, push and floor: add the posture's resting load (the weight's settle from weightless, the spine's bend or the side-lying arc, the trunk's weight on the floor) to the breath's"><input type="checkbox" id="brestload"> add the resting load</label>
     <label>Blur width <select id="bw"><option value="2">2 cm</option><option value="4" selected>4 cm</option><option value="8">8 cm</option></select></label>
     <label>Contrast <input type="range" id="bgamma" min="0.3" max="1.2" step="0.05" value="0.6"> <span id="bgv">γ 0.60</span></label>
     <label><input type="checkbox" id="bback" checked> back layer</label>
@@ -132,7 +133,7 @@ let viewerHTML = #"""
      brightness ratios are not motion ratios. "Soften where unsure" widens the light where 12 variants of the model,
      with its assumed numbers and the marker means redrawn, disagree (seated only); the variants leave out the
      structural choices, so this understates the uncertainty. "Test wave" replaces the model's light with a made-up
-     band that travels round the trunk once per breath, to compare how the shapes show travel; it is not a prediction. <b>Compare with</b> puts a second blur beside the first, at the same point in the breath and lit on the first posture's reference scale, so a weaker breath looks weaker; the popup window shows both. "Show the difference instead" replaces the second blur with the first minus the comparison, point by point on the same surface grid, drawn on the first posture's shape: orange where the first is further out (or less far in), blue where the comparison is. It is scaled so the largest difference over the whole breath is full brightness, so it shows where the two differ, not how large the difference is next to the breath itself. Cases are matched to the same breath size, so the difference is where the breath goes, not how much of it there is. Trunk only: the model has no head or limbs.
+     band that travels round the trunk once per breath, to compare how the shapes show travel; it is not a prediction. <b>What can be felt</b> (not for Seated, whose model is A2): the body senses no volume; it senses stretch, tension, effort and touch. <i>Stretch</i>: the wall's area strain (blue-white lengthened, violet shortened). <i>Push</i>: the tissue's own elastic force (passive springs, the costal arch and sternum, the bend's stiffening), turned into a surface pressure by virtual work. <i>Effort</i>: the muscles' force, the breath's drive plus what held regions resist; the model's holds are stiffnesses, so a hold costs effort only when the breath pushes on it. <i>Floor</i>: pressure on the contact patches. "Add the resting load" adds the posture's own: the weight's settle (from weightless), the spine's bend or, lying on the side, the rest arc (Leilnahari 2011; the mechanics don't use it yet), and the trunk's weight on the floor (35 kg, ASSUMED). With "diaphragm" on, push and effort light the domes by the diaphragm's force. The springs are linear: real tissue stiffens as it stretches, which this can't show; the floor's fitted stiffness is soft, so its breath pressure is small next to the resting load. <b>Compare with</b> puts a second blur beside the first, at the same point in the breath and lit on the first posture's reference scale, so a weaker breath looks weaker; the popup window shows both. "Show the difference instead" replaces the second blur with the first minus the comparison, point by point on the same surface grid, drawn on the first posture's shape: orange where the first is further out (or less far in), blue where the comparison is. It is scaled so the largest difference over the whole breath is full brightness, so it shows where the two differ, not how large the difference is next to the breath itself. Cases are matched to the same breath size, so the difference is where the breath goes, not how much of it there is. Trunk only: the model has no head or limbs.
      <b>Felt container:</b> the trunk surface mapped smoothly onto an oval, nothing cropped; the iliac crests and the top
      of the ribcage become its poles (the pelvic bowl and the lung apices are not modelled, so the poles are carried by
      their neighbours). "Room by breath" gives each height space by how much it moves in the reference breath; light is
@@ -575,7 +576,63 @@ function waveValues(surf, f, peak) {
   return v;
 }
 function qAt(f) { return frameQ(((f % kase.q.length) + kase.q.length) % kase.q.length).q; }
+// What can be felt (Felt.swift): per-frame arrays from the case, interpolated like q.
+function rowAt(arr, f) {
+  const n = arr.length, g = ((f % n) + n) % n, i = Math.floor(g) % n, j = (i + 1) % n, a = g - Math.floor(g);
+  return arr[i].map((v, c) => v + a * (arr[j][c] - v));
+}
+// A generalised force per coordinate as a surface pressure (cmH2O): f_c · b_c / Σ b_c²·a, the
+// diaphragm's left out (it has no wall: it goes to the domes).
+function forceField(surf, B, F) {
+  const n = surf.x.length, v = new Float64Array(n);
+  for (let c = 0; c < F.length; c++) { const N = surf.norm[c]; if (!N || !F[c]) continue; const k = F[c] / N, b = B[c]; for (let j = 0; j < n; j++) v[j] += k * b[j]; }
+  return v;
+}
+const patchCache = {};
+function patchOf(surf) {
+  const key = posture.id + "|" + kase.id;
+  if (patchCache[key]) return patchCache[key];
+  const n = surf.x.length, idx = new Int16Array(n).fill(-1);
+  (kase.patches || []).forEach((p, k) => {
+    for (let j = 0; j < n; j++) if (surf.side[j] === p.side && surf.z[j] >= p.z[0] && surf.z[j] <= p.z[1] && surf.psi[j] >= p.psi[0] && surf.psi[j] <= p.psi[1]) idx[j] = k;
+  });
+  return (patchCache[key] = idx);
+}
+function feltValues(surf, f, chan) {
+  const n = surf.x.length, rest = $("brestload").checked, w = $("bw").value;
+  if (!kase.elastic || !surf.strain) return new Float64Array(n);
+  if (chan === "stretch") {
+    const S = surf.strain[w], v = blurValues(surf, S, qAt(f));
+    if (rest) {
+      const r = blurValues(surf, S, kase.restQ), x = kase.restStrain;
+      for (let j = 0; j < n; j++) v[j] += r[j] + (x ? x[j] : 0);
+    }
+    return v;
+  }
+  if (chan === "push" || chan === "effort") {
+    const F = rowAt(chan === "push" ? kase.elastic : kase.effort, f);
+    if (rest && chan === "push") for (let c = 0; c < F.length; c++) F[c] += kase.restElastic[c];
+    return forceField(surf, surf.bases[w], F);
+  }
+  // floor
+  const P = rowAt(kase.floor, f), idx = patchOf(surf), v = new Float64Array(n);
+  for (let j = 0; j < n; j++) if (idx[j] >= 0) v[j] = P[idx[j]] + (rest ? kase.patches[idx[j]].rest : 0);
+  return v;
+}
+// The domes' value: the coordinate (fullness), or for push and effort the diaphragm's force as a
+// pressure (force over the volume it moves), on the surface's scale.
+function domeValue(f, chan, i) {
+  if (chan === "push" || chan === "effort") {
+    if (!kase.elastic) return 0;
+    let F = rowAt(chan === "push" ? kase.elastic : kase.effort, f)[i];
+    if (chan === "push" && $("brestload").checked) F += kase.restElastic[i];
+    return F / Math.abs(posture.own[i] || 1);
+  }
+  return qAt(f)[i];
+}
+const FELT = new Set(["stretch", "push", "effort", "floor"]);
 function channel(surf, B, f, chan) {
+  if (FELT.has(chan)) return feltValues(surf, f, chan);
   if (chan === "d") return blurValues(surf, B, qAt(f));
   const a = blurValues(surf, B, qAt(f + 0.5)), b = blurValues(surf, B, qAt(f - 0.5));
   const dt = D.period / kase.q.length;
@@ -600,13 +657,14 @@ function accumulate(f, mag, width, chan, gamma, ref, over) {
   };
   if ($("bback").checked) for (let j = 0; j < n; j++) if (surf.back[j]) one(j, true);
   for (let j = 0; j < n; j++) if (!surf.back[j]) one(j, false);
-  if ($("binside").checked && !wave && !over) {
+  if ($("binside").checked && !wave && !over && chan !== "stretch" && chan !== "floor") {
     // Each hemidiaphragm's descent: A2 has one coordinate for both; the sided model one per side
-    // (posture.diaphragm lists the indices: [both] or [left, right]).
-    const q = qAt(f), idx = posture.diaphragm || [6], share = surf.diaphragmBackShare;
+    // (posture.diaphragm lists the indices: [both] or [left, right]). Push and effort: its force.
+    const q = qAt(f), idx = posture.diaphragm || [6], share = surf.diaphragmBackShare, felt = FELT.has(chan);
     for (const sx of [-1, 1]) {
-      const d = q[idx.length > 1 ? (sx > 0 ? idx[0] : idx[1]) : idx[0]];
-      const dL = Math.pow(Math.max(0, d) / ref.dmax, gamma), zDome = posture.landmarks["xiphoid"] - 1.5 - d * mag;
+      const i = idx.length > 1 ? (sx > 0 ? idx[0] : idx[1]) : idx[0];
+      const d = q[i], dv = felt ? Math.abs(domeValue(f, chan, i)) : Math.max(0, d);
+      const dL = Math.pow(dv / (felt ? ref.m : ref.dmax), gamma), zDome = posture.landmarks["xiphoid"] - 1.5 - d * mag;
       const [dx, dz] = toDisplay(sx * 7, zDome);
       splat(dx, dz, 4.5, 60 * dL * share, COL.dia);
       splat(dx, dz, 3.0, 60 * dL * (1 - share), COL.dia);
@@ -639,7 +697,7 @@ function glow() {
 // Reference scales: the largest |value| over the posture's reference breath (per width and channel),
 // its diaphragm peak, and the exposure that maps its brightest frame's brightest cell to 0.85.
 function refScale(width, chan, gamma, mag) {
-  const key = [posture.id, width, chan, gamma, $("bback").checked, $("binside").checked,
+  const key = [posture.id, width, chan, gamma, $("bback").checked, $("binside").checked, $("brestload").checked,
                $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bcentre").value, $("bglow").value, $("bgmix").value].join("|");
   if (refCache[key]) return refCache[key];
   const keep = kase; kase = posture.cases.find(c => c.id === "reference"); inRef = true;
@@ -677,7 +735,7 @@ function deltaVals(width, chan) {
 }
 const deltaCache = {};
 function deltaScale(width, chan, gamma, mag, over) {
-  const key = [posture.id, kase.id, $("cposture").value, $("ccase").value, width, chan, gamma, $("bback").checked,
+  const key = [posture.id, kase.id, $("cposture").value, $("ccase").value, width, chan, gamma, $("bback").checked, $("brestload").checked,
                $("bshape").value, $("broom").value, $("begg").value, $("baspect").value, $("bcentre").value, $("bglow").value, $("bgmix").value].join("|");
   if (deltaCache[key]) return deltaCache[key];
   let m = 1e-12;
@@ -783,7 +841,7 @@ let t; document.addEventListener("mousemove", () => { document.body.classList.re
 $("bgamma").oninput = () => { $("bgv").textContent = "γ " + (+$("bgamma").value).toFixed(2); render(); };
 // Exposure depends on magnification only through the dome's drawn height; recompute when it changes.
 $("mag").addEventListener("input", () => { for (const k in refCache) delete refCache[k]; });
-for (const id of ["bchan", "bw", "bback", "binside", "bsil", "bspine", "bunc", "bwave"]) $(id).onchange = render;
+for (const id of ["bchan", "bw", "bback", "binside", "bsil", "bspine", "bunc", "bwave", "brestload"]) $(id).onchange = render;
 // Shape changes move the light, so the exposure is recomputed; the oval's sliders only show with it.
 function shapeChanged() {
   for (const k in refCache) delete refCache[k];

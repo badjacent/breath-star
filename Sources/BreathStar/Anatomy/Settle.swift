@@ -139,10 +139,23 @@ extension AnatomyModel {
     }
 
     /// Rest position of a surface point (cm; x toward the left, y forward from the back, z up).
-    func restPoint(z: Double, psi: Double, side: Side) -> (x: Double, y: Double, z: Double) {
+    public func restPoint(z: Double, psi: Double, side: Side) -> (x: Double, y: Double, z: Double) {
         let (ap, w) = base(z), r = psi * .pi / 180
         return ((side == .left ? 1 : -1) * w * sin(r), ap / 2 * (1 + cos(r)), z)
     }
+}
+
+/// One contact spring (`SidedBody.contactSprings`).
+public struct ContactSpring: Sendable {
+    public var z: ClosedRange<Double>, psi: ClosedRange<Double>, side: Side
+    public var c: [Double], k: Double, area: Double, into: Double
+    public var outward: (x: Double, y: Double, z: Double)
+    /// Pressure on the patch beyond its resting load, cmH2O, for a breath state q: the spring's force
+    /// over its area. `c` reads the surface motion as if it were in mm (the "/ 10 // mm → cm" in
+    /// `contactSprings`), but `surfaceDisplacement` is in cm, so c·q is a tenth of the motion in cm and
+    /// the spring's force per cm of true motion is k·(c·q)/10. (The fitted `contactStiffness` absorbed
+    /// the factor: the floor's effective stiffness is 1/100 of its label. Found 2026-11-27.)
+    public func pressure(_ q: [Double]) -> Double { k * 1000 / area * zip(c, q).reduce(0) { $0 + $1.0 * $1.1 } / 10 }
 }
 
 /// A contact patch's surface: heights, angles around each half-section, sides, and the outward
@@ -295,21 +308,17 @@ extension SidedBody {
         return SettledState(q: q, lung: lung, diaphragm: (0..<2).map { dot(geometry.diaphragm[$0]) }, frontWallLoad: frontLoad)
     }
 
-    /// Contacts as couplings: each patch resists the mean outward motion of its surface, with the
-    /// support's stiffness × the share of weight pressing into it × the patch area.
-    public func withContacts(_ contacts: [ContactPatch], gravity g: (x: Double, y: Double, z: Double),
-                             rules: GravityRules) -> SidedBody {
-        var b = self
+    /// The contact springs, one per region and side a patch covers (see `withContacts`), with where
+    /// they sit, so the pressure on each can be read: pressure (cmH2O) = k · 1000 / area · (c·q), the
+    /// support's stiffness × the weight share × the surface's mean motion into it.
+    public func contactSprings(_ contacts: [ContactPatch], gravity g: (x: Double, y: Double, z: Double),
+                               rules: GravityRules) -> [ContactSpring] {
         let a = anatomy
-        // Springs grouped by the support's normal, for the free lift below.
-        var groups: [String: [(c: [Double], k: Double)]] = [:]
+        var out: [ContactSpring] = []
         for patch in contacts {
             let s = patch.surface(a)
-            let into = g.x * s.outward.x + g.y * s.outward.y + g.z * s.outward.z  // weight pressing into the support
-            guard into > 0.05 else { continue }  // the support bears no load: no contact
-            // Each region (abdomen, lower ribcage, upper ribcage) and side the patch covers is its own
-            // spring: one spring on a patch's mean motion would let one part push into the support
-            // while another pulls away (found on prone, 2026-11-10).
+            let into = g.x * s.outward.x + g.y * s.outward.y + g.z * s.outward.z
+            guard into > 0.05 else { continue }
             let cuts = [0.0, a.costalMargin, a.xiphoid, a.top]
             for k in 0..<3 {
                 let lo = max(s.z.lowerBound, cuts[k]), hi = min(s.z.upperBound, cuts[k + 1])
@@ -317,19 +326,32 @@ extension SidedBody {
                 for side in s.sides {
                     let c = SidedBody.vector(a) { st in
                         let m = a.sectorMotion(z: lo...hi, psi: s.psi, side: side, st)
-                        // sectorMotion's x is outward on that side; convert to the body frame.
                         let bx = (side == .left ? 1 : -1) * m.x
                         return (bx * s.outward.x + m.y * s.outward.y + m.z * s.outward.z) / 10  // mm → cm
                     }
-                    // Sub-patch area, cm²: height × arc length over the sector.
                     let (ap, w) = a.base(0.5 * (lo + hi))
                     let arcPerRad = (0.5 * (w * w + ap * ap / 4)).squareRoot()
                     let area = (hi - lo) * arcPerRad * (s.psi.upperBound - s.psi.lowerBound) * .pi / 180
-                    let spring = (c: c, k: rules.contactStiffness * into * area / 1000)
-                    b.couplings.append(spring)
-                    groups["\(s.outward.x),\(s.outward.y),\(s.outward.z)", default: []].append(spring)
+                    out.append(ContactSpring(z: lo...hi, psi: s.psi, side: side, c: c,
+                                             k: rules.contactStiffness * into * area / 1000, area: area, into: into,
+                                             outward: s.outward))
                 }
             }
+        }
+        return out
+    }
+
+    /// Contacts as couplings: each patch resists the mean outward motion of its surface, with the
+    /// support's stiffness × the share of weight pressing into it × the patch area.
+    public func withContacts(_ contacts: [ContactPatch], gravity g: (x: Double, y: Double, z: Double),
+                             rules: GravityRules) -> SidedBody {
+        var b = self
+        // Springs grouped by the support's normal, for the free lift below.
+        var groups: [String: [(c: [Double], k: Double)]] = [:]
+        for sp in contactSprings(contacts, gravity: g, rules: rules) {
+            let spring = (c: sp.c, k: sp.k)
+            b.couplings.append(spring)
+            groups["\(sp.outward.x),\(sp.outward.y),\(sp.outward.z)", default: []].append(spring)
         }
         // The free lift (`GravityRules.contactFreeLift`): a support holds the surface relative to the
         // room, not the spine, and the trunk can rise off it as a whole (its weight stays on the
