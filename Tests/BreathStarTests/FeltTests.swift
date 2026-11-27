@@ -2,9 +2,9 @@ import Foundation
 import Testing
 @testable import BreathStar
 
-/// What can be felt (2026-11-27): the contact springs are readable patch by patch, and the surface's
-/// displacement is in cm (its volume integral is each coordinate's volume), which the contact and
-/// tone springs read as mm.
+/// What can be felt (2026-11-27): the contact springs are readable patch by patch; the surface's
+/// displacement is in cm (its volume integral is each coordinate's volume) and `sectorMotion` in mm,
+/// which is why the contact, bed and tone springs divide it by 10.
 @Suite struct Felt {
     /// `withContacts` adds exactly the springs `contactSprings` lists (the refactor kept them).
     @Test func contactSpringsAreTheCouplings() {
@@ -46,5 +46,9 @@ import Testing
         }
         let own = a.sidedGeometry().own[SidedCoordinate.abdomen.rawValue]
         #expect(abs(v / 1000 / own - 1) < 0.1)
+        // sectorMotion is the same motion in mm.
+        let d = a.surfaceDisplacement(z: 0.5 * a.costalMargin, psiDegrees: 90, side: .left, s)
+        let m = a.sectorMotion(z: (0.5 * a.costalMargin)...(0.5 * a.costalMargin), psi: 90...90, side: .left, s)
+        #expect(abs(m.x - 10 * d.x) < 1e-9 * max(1, abs(m.x)))
     }
 }

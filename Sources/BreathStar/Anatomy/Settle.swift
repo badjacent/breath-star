@@ -151,11 +151,9 @@ public struct ContactSpring: Sendable {
     public var c: [Double], k: Double, area: Double, into: Double
     public var outward: (x: Double, y: Double, z: Double)
     /// Pressure on the patch beyond its resting load, cmH2O, for a breath state q: the spring's force
-    /// over its area. `c` reads the surface motion as if it were in mm (the "/ 10 // mm → cm" in
-    /// `contactSprings`), but `surfaceDisplacement` is in cm, so c·q is a tenth of the motion in cm and
-    /// the spring's force per cm of true motion is k·(c·q)/10. (The fitted `contactStiffness` absorbed
-    /// the factor: the floor's effective stiffness is 1/100 of its label. Found 2026-11-27.)
-    public func pressure(_ q: [Double]) -> Double { k * 1000 / area * zip(c, q).reduce(0) { $0 + $1.0 * $1.1 } / 10 }
+    /// over its area. c·q is the surface's mean motion into the support in cm (`sectorMotion` is in
+    /// mm, hence its / 10), so this is the support's stiffness × the weight share × that motion.
+    public func pressure(_ q: [Double]) -> Double { k * 1000 / area * zip(c, q).reduce(0) { $0 + $1.0 * $1.1 } }
 }
 
 /// A contact patch's surface: heights, angles around each half-section, sides, and the outward
